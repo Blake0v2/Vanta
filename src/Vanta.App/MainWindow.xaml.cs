@@ -20,7 +20,7 @@ public partial class MainWindow : Window
     private const double HomeWidth = 804;
     private const double HomeHeight = 203;
     private const double AdvancedWidth = 900;
-    private const double AdvancedHeight = 466;
+    private const double AdvancedHeight = 490;
     private readonly AppSettingsStore _settingsStore = new();
     private readonly GlobalHotKeyService _hotKeyService = new();
     private readonly AutoClickService _clickService = new();

@@ -157,7 +157,7 @@
                 <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource AdvancedCard}">
                     <Grid Margin="12,8">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="36" />
+                            <RowDefinition Height="40" />
                             <RowDefinition Height="1" />
                             <RowDefinition Height="26" />
                             <RowDefinition Height="*" />
@@ -205,7 +205,7 @@
                 <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource AdvancedCard}">
                     <Grid Margin="12,8">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="36" />
+                            <RowDefinition Height="40" />
                             <RowDefinition Height="1" />
                             <RowDefinition Height="26" />
                             <RowDefinition Height="*" />
@@ -238,7 +238,7 @@
                 <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource AdvancedCard}">
                     <Grid Margin="12,8">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="36" />
+                            <RowDefinition Height="40" />
                             <RowDefinition Height="1" />
                             <RowDefinition Height="26" />
                             <RowDefinition Height="*" />
@@ -295,7 +295,7 @@
                 <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource AdvancedCard}">
                     <Grid Margin="12,8">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="36" />
+                            <RowDefinition Height="40" />
                             <RowDefinition Height="1" />
                             <RowDefinition Height="26" />
                             <RowDefinition Height="*" />
@@ -336,7 +336,7 @@
                 <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource AdvancedCard}">
                     <Grid Margin="12,8">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="36" />
+                            <RowDefinition Height="40" />
                             <RowDefinition Height="1" />
                             <RowDefinition Height="26" />
                             <RowDefinition Height="*" />
@@ -372,7 +372,7 @@
                 <Border Grid.Row="4" Grid.Column="2" Style="{StaticResource AdvancedCard}">
                     <Grid Margin="12,8">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="36" />
+                            <RowDefinition Height="40" />
                             <RowDefinition Height="1" />
                             <RowDefinition Height="26" />
                             <RowDefinition Height="*" />
