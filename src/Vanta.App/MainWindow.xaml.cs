@@ -33,6 +33,7 @@ public partial class MainWindow : Window
     private bool _isCapturingHotkey;
     private bool _isCapturingKeyboardTarget;
     private bool _isSynchronizingControls;
+    private int _resizeVersion;
     private string _hotkeyBeforeCapture = "Alt + Q";
     private string _keyboardTargetBeforeCapture = "Space";
     private ModifierKeys _capturedModifiers;
@@ -299,10 +300,7 @@ public partial class MainWindow : Window
 
         var currentWidth = ActualWidth;
         var currentHeight = ActualHeight;
-        var currentLeft = Left;
-        var currentTop = Top;
-        var targetLeft = currentLeft - ((targetWidth - currentWidth) / 2d);
-        var targetTop = currentTop - ((targetHeight - currentHeight) / 2d);
+        var resizeVersion = ++_resizeVersion;
 
         BeginAnimation(WidthProperty, null);
         BeginAnimation(HeightProperty, null);
@@ -311,14 +309,25 @@ public partial class MainWindow : Window
 
         Width = targetWidth;
         Height = targetHeight;
-        Left = targetLeft;
-        Top = targetTop;
 
         var duration = new Duration(TimeSpan.FromMilliseconds(285));
-        BeginAnimation(WidthProperty, CreateResizeAnimation(currentWidth, targetWidth, duration));
-        BeginAnimation(HeightProperty, CreateResizeAnimation(currentHeight, targetHeight, duration));
-        BeginAnimation(LeftProperty, CreateResizeAnimation(currentLeft, targetLeft, duration));
-        BeginAnimation(TopProperty, CreateResizeAnimation(currentTop, targetTop, duration));
+        var widthAnimation = CreateResizeAnimation(currentWidth, targetWidth, duration);
+        var heightAnimation = CreateResizeAnimation(currentHeight, targetHeight, duration);
+        heightAnimation.Completed += (_, _) =>
+        {
+            if (resizeVersion != _resizeVersion)
+            {
+                return;
+            }
+
+            BeginAnimation(WidthProperty, null);
+            BeginAnimation(HeightProperty, null);
+            Width = targetWidth;
+            Height = targetHeight;
+        };
+
+        BeginAnimation(WidthProperty, widthAnimation);
+        BeginAnimation(HeightProperty, heightAnimation);
     }
 
     private static DoubleAnimation CreateResizeAnimation(double from, double to, Duration duration)
