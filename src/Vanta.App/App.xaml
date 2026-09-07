@@ -293,6 +293,16 @@
             <Setter Property="SnapsToDevicePixels" Value="True" />
         </Style>
 
+        <Style x:Key="AdvancedHeaderSegment" TargetType="RadioButton" BasedOn="{StaticResource AdvancedSegment}">
+            <Setter Property="Height" Value="24" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+
+        <Style x:Key="AdvancedHeaderSegmentShell" TargetType="Border" BasedOn="{StaticResource AdvancedSegmentShell}">
+            <Setter Property="Height" Value="28" />
+            <Setter Property="CornerRadius" Value="5" />
+        </Style>
+
         <Style x:Key="AdvancedAction" TargetType="Button">
             <Setter Property="Height" Value="34" />
             <Setter Property="Background" Value="#000000" />
