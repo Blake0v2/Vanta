@@ -88,7 +88,7 @@ public partial class MainWindow : Window
     private void ReadSettingsFromControls()
     {
         var visibleRate = ParseDouble(CadenceValueBox.Text, 10, 0.1, 60_000);
-        _settings.CadencePeriod = SelectedText(CadenceUnitCombo, "Second");
+        _settings.CadencePeriod = SelectedValue(CadenceUnitCombo, "Second");
         _settings.CadenceValue = ToClicksPerSecond(visibleRate, _settings.CadencePeriod);
         _settings.IsDelayMode = false;
         _settings.ActivationMode = SelectedText(ActivationCombo, "Toggle");
@@ -330,11 +330,19 @@ public partial class MainWindow : Window
     private static string SelectedText(ComboBox comboBox, string fallback) =>
         (comboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? fallback;
 
+    private static string SelectedValue(ComboBox comboBox, string fallback)
+    {
+        return comboBox.SelectedItem is ComboBoxItem item
+            ? item.Tag?.ToString() ?? item.Content?.ToString() ?? fallback
+            : fallback;
+    }
+
     private static void SelectComboItem(ComboBox comboBox, string content)
     {
         foreach (var item in comboBox.Items.OfType<ComboBoxItem>())
         {
-            if (string.Equals(item.Content?.ToString(), content, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(item.Tag?.ToString(), content, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(item.Content?.ToString(), content, StringComparison.OrdinalIgnoreCase))
             {
                 comboBox.SelectedItem = item;
                 return;

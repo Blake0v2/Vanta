@@ -71,10 +71,10 @@
                         <TextBlock Grid.Column="2" Text="Clicks Per" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         <Border Grid.Column="3" Style="{StaticResource Divider}" />
                         <ComboBox x:Name="CadenceUnitCombo" Grid.Column="4" Style="{StaticResource InlineCombo}" SelectionChanged="Setting_Changed">
-                            <ComboBoxItem Content="Millisecond" />
-                            <ComboBoxItem Content="Second" IsSelected="True" />
-                            <ComboBoxItem Content="Minute" />
-                            <ComboBoxItem Content="Hour" />
+                            <ComboBoxItem Content="ms" Tag="Millisecond" />
+                            <ComboBoxItem Content="s" Tag="Second" IsSelected="True" />
+                            <ComboBoxItem Content="m" Tag="Minute" />
+                            <ComboBoxItem Content="h" Tag="Hour" />
                         </ComboBox>
                     </Grid>
                 </Border>

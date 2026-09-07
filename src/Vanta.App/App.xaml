@@ -114,14 +114,16 @@
         <Style TargetType="ComboBoxItem">
             <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Padding" Value="8,8" />
+            <Setter Property="Padding" Value="0" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBoxItem">
-                        <Border x:Name="ItemRoot" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}" Margin="3,1">
-                            <ContentPresenter />
+                        <Border x:Name="ItemRoot" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <Border BorderBrush="#454549" BorderThickness="0,0,0,1" Margin="12,0">
+                                <ContentPresenter HorizontalAlignment="Center" Margin="0,8" />
+                            </Border>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
@@ -170,8 +172,8 @@
                                 </ToggleButton.Template>
                             </ToggleButton>
                             <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
-                                <Border Background="#121214" BorderBrush="#62656A" BorderThickness="2" CornerRadius="8" Margin="0,5,0,0" Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="220">
-                                    <ItemsPresenter Margin="2" />
+                                <Border Background="#09090A" BorderBrush="#62656A" BorderThickness="2,0,2,2" CornerRadius="0,0,8,8" Margin="0,-2,0,0" Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="220">
+                                    <ItemsPresenter />
                                 </Border>
                             </Popup>
                         </Grid>
