@@ -3,6 +3,7 @@ namespace Vanta.Models;
 public sealed class AppSettings
 {
     public double CadenceValue { get; set; } = 10;
+    public string CadencePeriod { get; set; } = "Second";
     public bool IsDelayMode { get; set; }
     public string HotKeyModifier { get; set; } = "Alt";
     public string HotKey { get; set; } = "Q";
@@ -30,6 +31,7 @@ public sealed class AppSettings
         return new AppSettings
         {
             CadenceValue = CadenceValue,
+            CadencePeriod = CadencePeriod,
             IsDelayMode = IsDelayMode,
             HotKeyModifier = HotKeyModifier,
             HotKey = HotKey,
