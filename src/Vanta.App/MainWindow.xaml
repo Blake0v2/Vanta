@@ -113,8 +113,8 @@
                 </Border>
             </Grid>
 
-            <Grid x:Name="AdvancedView" Grid.Row="1" Visibility="Collapsed" Background="#000000" />
-            <Grid x:Name="SettingsView" Grid.Row="1" Visibility="Collapsed" Background="#000000" />
+            <Grid x:Name="AdvancedView" Grid.Row="1" Visibility="Collapsed" />
+            <Grid x:Name="SettingsView" Grid.Row="1" Visibility="Collapsed" />
         </Grid>
     </Border>
 </Window>

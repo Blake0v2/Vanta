@@ -48,6 +48,20 @@ public partial class MainWindow : Window
 
         LoadSettings();
 
+        var captureView = Environment.GetCommandLineArgs()
+            .FirstOrDefault(argument => argument.StartsWith("--capture-view=", StringComparison.OrdinalIgnoreCase))?
+            .Substring("--capture-view=".Length);
+        if (string.Equals(captureView, "advanced", StringComparison.OrdinalIgnoreCase))
+        {
+            AdvancedNav.IsChecked = true;
+            ShowView(AdvancedView);
+        }
+        else if (string.Equals(captureView, "settings", StringComparison.OrdinalIgnoreCase))
+        {
+            SettingsNav.IsChecked = true;
+            ShowView(SettingsView);
+        }
+
         _hotKeyService.Pressed += HotKeyService_Pressed;
         SourceInitialized += MainWindow_SourceInitialized;
         ContentRendered += MainWindow_ContentRendered;
