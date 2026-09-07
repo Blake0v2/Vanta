@@ -164,10 +164,9 @@
                         </Grid.RowDefinitions>
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Style="{StaticResource AdvancedIcon}" Text="&#xE945;" />
                                 <TextBlock Style="{StaticResource AdvancedTitle}" Text="Click Speed" />
                             </StackPanel>
-                            <Border Width="140" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
+                            <Border Width="140" Margin="0,-4,0,4" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
                                     <RadioButton x:Name="AdvancedRateMode" GroupName="CadenceMode" Style="{StaticResource AdvancedSegment}" Content="Rate" IsChecked="True" Checked="AdvancedSetting_Changed" />
                                     <RadioButton x:Name="AdvancedDelayMode" GroupName="CadenceMode" Style="{StaticResource AdvancedSegment}" Content="Interval" Checked="AdvancedSetting_Changed" />
@@ -210,10 +209,9 @@
                         </Grid.RowDefinitions>
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Style="{StaticResource AdvancedIcon}" Text="&#xE765;" />
                                 <TextBlock Style="{StaticResource AdvancedTitle}" Text="Hotkey" />
                             </StackPanel>
-                            <Border Width="134" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
+                            <Border Width="134" Margin="0,-4,0,4" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
                                     <RadioButton x:Name="AdvancedToggleMode" GroupName="ActivationMode" Style="{StaticResource AdvancedSegment}" Content="Toggle" IsChecked="True" Checked="AdvancedSetting_Changed" />
                                     <RadioButton x:Name="AdvancedHoldMode" GroupName="ActivationMode" Style="{StaticResource AdvancedSegment}" Content="Hold" Checked="AdvancedSetting_Changed" />
@@ -244,10 +242,9 @@
                         </Grid.RowDefinitions>
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Style="{StaticResource AdvancedIcon}" Text="&#xE962;" />
                                 <TextBlock Style="{StaticResource AdvancedTitle}" Text="Clicker Type" />
                             </StackPanel>
-                            <Border Width="154" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
+                            <Border Width="154" Margin="0,-4,0,4" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
                                     <RadioButton x:Name="AdvancedMouseType" GroupName="ClickerType" Style="{StaticResource AdvancedSegment}" Content="Mouse" IsChecked="True" Checked="AdvancedSetting_Changed" />
                                     <RadioButton x:Name="AdvancedKeyboardType" GroupName="ClickerType" Style="{StaticResource AdvancedSegment}" Content="Keyboard" Checked="AdvancedSetting_Changed" />
@@ -302,10 +299,9 @@
                         </Grid.RowDefinitions>
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Style="{StaticResource AdvancedIcon}" Text="&#xEA18;" />
                                 <TextBlock Style="{StaticResource AdvancedTitle}" Text="Limits" />
                             </StackPanel>
-                            <Border Width="86" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
+                            <Border Width="86" Margin="0,-4,0,4" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
                                     <RadioButton x:Name="AdvancedLimitOff" GroupName="LimitEnabled" Style="{StaticResource AdvancedSegment}" Content="Off" IsChecked="True" Checked="AdvancedSetting_Changed" />
                                     <RadioButton x:Name="AdvancedLimitOn" GroupName="LimitEnabled" Style="{StaticResource AdvancedSegment}" Content="On" Checked="AdvancedSetting_Changed" />
@@ -344,10 +340,9 @@
                         </Grid.RowDefinitions>
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Style="{StaticResource AdvancedIcon}" Text="&#xE916;" />
                                 <TextBlock Style="{StaticResource AdvancedTitle}" Text="Duty Cycle" />
                             </StackPanel>
-                            <Border Width="120" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
+                            <Border Width="120" Margin="0,-4,0,4" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
                                     <RadioButton x:Name="AdvancedDutyClickMode" GroupName="DutyCycleMode" Style="{StaticResource AdvancedSegment}" Content="Click" IsChecked="True" Checked="AdvancedSetting_Changed" />
                                     <RadioButton x:Name="AdvancedDutyHoldMode" GroupName="DutyCycleMode" Style="{StaticResource AdvancedSegment}" Content="Hold" Checked="AdvancedSetting_Changed" />
@@ -381,10 +376,9 @@
                         </Grid.RowDefinitions>
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Style="{StaticResource AdvancedIcon}" Text="&#xE8B1;" />
                                 <TextBlock Style="{StaticResource AdvancedTitle}" Text="Speed Randomization" />
                             </StackPanel>
-                            <Border Width="86" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
+                            <Border Width="86" Margin="0,-4,0,4" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
                                     <RadioButton x:Name="AdvancedVariationOff" GroupName="VariationEnabled" Style="{StaticResource AdvancedSegment}" Content="Off" IsChecked="True" Checked="AdvancedSetting_Changed" />
                                     <RadioButton x:Name="AdvancedVariationOn" GroupName="VariationEnabled" Style="{StaticResource AdvancedSegment}" Content="On" Checked="AdvancedSetting_Changed" />
