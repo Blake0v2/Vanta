@@ -142,6 +142,54 @@
 
             <Grid x:Name="AdvancedView" Grid.Row="1" Visibility="Collapsed" />
             <Grid x:Name="SettingsView" Grid.Row="1" Visibility="Collapsed" />
+
+            <Border Grid.RowSpan="2" Width="122" Height="2" Margin="212,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#000000" IsHitTestVisible="False" Panel.ZIndex="20" SnapsToDevicePixels="True">
+                <Border.RenderTransform>
+                    <TranslateTransform Y="2" />
+                </Border.RenderTransform>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsDropDownOpen, ElementName=CadenceUnitCombo}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
+
+            <Border Grid.RowSpan="2" Width="95" Height="2" Margin="472,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#000000" IsHitTestVisible="False" Panel.ZIndex="20" SnapsToDevicePixels="True">
+                <Border.RenderTransform>
+                    <TranslateTransform Y="2" />
+                </Border.RenderTransform>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsDropDownOpen, ElementName=ActivationCombo}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
+
+            <Border Grid.RowSpan="2" Width="98" Height="2" Margin="679,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#000000" IsHitTestVisible="False" Panel.ZIndex="20" SnapsToDevicePixels="True">
+                <Border.RenderTransform>
+                    <TranslateTransform Y="2" />
+                </Border.RenderTransform>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsDropDownOpen, ElementName=MouseButtonCombo}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
         </Grid>
     </Border>
 </Window>

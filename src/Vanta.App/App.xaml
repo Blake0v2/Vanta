@@ -172,18 +172,12 @@
                                     </ControlTemplate>
                                 </ToggleButton.Template>
                             </ToggleButton>
-                            <Border x:Name="JoinCap" Width="2" Height="2" Margin="-2,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#000000" Visibility="Collapsed" IsHitTestVisible="False" />
                             <Popup x:Name="PART_Popup" Placement="Bottom" HorizontalOffset="-1" VerticalOffset="-2" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
                                 <Border Background="#09090A" BorderBrush="#62656A" BorderThickness="2,0,2,2" CornerRadius="0,0,8,8" Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="220">
                                     <ItemsPresenter />
                                 </Border>
                             </Popup>
                         </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsDropDownOpen" Value="True">
-                                <Setter TargetName="JoinCap" Property="Visibility" Value="Visible" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
