@@ -16,6 +16,10 @@ namespace Vanta;
 
 public partial class MainWindow : Window
 {
+    private const double HomeWidth = 804;
+    private const double HomeHeight = 203;
+    private const double AdvancedWidth = 860;
+    private const double AdvancedHeight = 528;
     private readonly AppSettingsStore _settingsStore = new();
     private readonly GlobalHotKeyService _hotKeyService = new();
     private readonly AutoClickService _clickService = new();
@@ -26,8 +30,10 @@ public partial class MainWindow : Window
     private bool _isLoading = true;
     private bool _hotKeyAttached;
     private bool _isCapturingHotkey;
+    private bool _isSynchronizingControls;
     private string _hotkeyBeforeCapture = "Alt + Q";
     private ModifierKeys _capturedModifiers;
+    private TextBox? _activeHotkeyBox;
 
     public MainWindow()
     {
@@ -75,13 +81,43 @@ public partial class MainWindow : Window
         var period = string.IsNullOrWhiteSpace(_settings.CadencePeriod) ? "Second" : _settings.CadencePeriod;
         var visibleRate = _settings.CadenceDisplayValue is > 0
             ? Math.Clamp(_settings.CadenceDisplayValue.Value, 0.1, 60_000)
-            : ToVisibleRate(_settings.CadenceValue, period);
+            : _settings.IsDelayMode
+                ? Math.Clamp(_settings.CadenceValue, 0.1, 60_000)
+                : ToVisibleRate(_settings.CadenceValue, period);
 
         CadenceValueBox.Text = visibleRate.ToString("0.##", CultureInfo.InvariantCulture);
         SelectComboItem(CadenceUnitCombo, period);
-        HotkeyInputBox.Text = FormatHotkeyDisplay(_settings.HotKeyModifier, _settings.HotKey);
+        AdvancedCadenceValueBox.Text = CadenceValueBox.Text;
+        SelectComboItem(AdvancedCadenceUnitCombo, period);
+        AdvancedRateMode.IsChecked = !_settings.IsDelayMode;
+        AdvancedDelayMode.IsChecked = _settings.IsDelayMode;
+
+        var hotkeyDisplay = FormatHotkeyDisplay(_settings.HotKeyModifier, _settings.HotKey);
+        HotkeyInputBox.Text = hotkeyDisplay;
+        AdvancedHotkeyInputBox.Text = hotkeyDisplay;
         SelectComboItem(ActivationCombo, _settings.ActivationMode);
         SelectComboItem(MouseButtonCombo, _settings.MouseButton);
+        AdvancedToggleMode.IsChecked = !string.Equals(_settings.ActivationMode, "Hold", StringComparison.OrdinalIgnoreCase);
+        AdvancedHoldMode.IsChecked = string.Equals(_settings.ActivationMode, "Hold", StringComparison.OrdinalIgnoreCase);
+        AdvancedMouseLeft.IsChecked = string.Equals(_settings.MouseButton, "Left", StringComparison.OrdinalIgnoreCase);
+        AdvancedMouseMiddle.IsChecked = string.Equals(_settings.MouseButton, "Middle", StringComparison.OrdinalIgnoreCase);
+        AdvancedMouseRight.IsChecked = string.Equals(_settings.MouseButton, "Right", StringComparison.OrdinalIgnoreCase);
+
+        AdvancedClickDurationBox.Text = _settings.ClickDurationPercent.ToString(CultureInfo.InvariantCulture);
+        AdvancedLimitOff.IsChecked = !_settings.LimitEnabled;
+        AdvancedLimitOn.IsChecked = _settings.LimitEnabled;
+        AdvancedLimitValueBox.Text = _settings.LimitValue.ToString(CultureInfo.InvariantCulture);
+        AdvancedLimitClicks.IsChecked = string.Equals(_settings.LimitType, "Clicks", StringComparison.OrdinalIgnoreCase);
+        AdvancedLimitTime.IsChecked = !string.Equals(_settings.LimitType, "Clicks", StringComparison.OrdinalIgnoreCase);
+        AdvancedVariationBox.Text = _settings.VariationPercent.ToString(CultureInfo.InvariantCulture);
+        AdvancedVariationOff.IsChecked = !_settings.VariationEnabled;
+        AdvancedVariationOn.IsChecked = _settings.VariationEnabled;
+        AdvancedDoubleClickBox.Text = _settings.DoubleClickGapMs.ToString(CultureInfo.InvariantCulture);
+        AdvancedDoubleOff.IsChecked = !_settings.DoubleClickEnabled;
+        AdvancedDoubleOn.IsChecked = _settings.DoubleClickEnabled;
+        AdvancedSequenceOff.IsChecked = !_settings.SequenceEnabled;
+        AdvancedSequenceOn.IsChecked = _settings.SequenceEnabled;
+        RefreshSequencePoints();
         Topmost = _settings.AlwaysOnTop;
         UpdatePinVisual();
 
@@ -90,13 +126,26 @@ public partial class MainWindow : Window
 
     private void ReadSettingsFromControls()
     {
-        var visibleRate = ParseDouble(CadenceValueBox.Text, 10, 0.1, 60_000);
-        _settings.CadencePeriod = SelectedValue(CadenceUnitCombo, "Second");
+        var visibleRate = ParseDouble(AdvancedCadenceValueBox.Text, 10, 0.1, 60_000);
+        _settings.CadencePeriod = SelectedValue(AdvancedCadenceUnitCombo, "Second");
         _settings.CadenceDisplayValue = visibleRate;
-        _settings.CadenceValue = ToClicksPerSecond(visibleRate, _settings.CadencePeriod);
-        _settings.IsDelayMode = false;
-        _settings.ActivationMode = SelectedText(ActivationCombo, "Toggle");
-        _settings.MouseButton = SelectedText(MouseButtonCombo, "Left");
+        _settings.IsDelayMode = AdvancedDelayMode.IsChecked == true;
+        _settings.CadenceValue = _settings.IsDelayMode
+            ? visibleRate
+            : ToClicksPerSecond(visibleRate, _settings.CadencePeriod);
+        _settings.ActivationMode = AdvancedHoldMode.IsChecked == true ? "Hold" : "Toggle";
+        _settings.MouseButton = AdvancedMouseRight.IsChecked == true
+            ? "Right"
+            : AdvancedMouseMiddle.IsChecked == true ? "Middle" : "Left";
+        _settings.ClickDurationPercent = ParseInt(AdvancedClickDurationBox.Text, 15, 1, 100);
+        _settings.LimitEnabled = AdvancedLimitOn.IsChecked == true;
+        _settings.LimitValue = ParseInt(AdvancedLimitValueBox.Text, 1000, 1, 1_000_000);
+        _settings.LimitType = AdvancedLimitTime.IsChecked == true ? "Seconds" : "Clicks";
+        _settings.VariationEnabled = AdvancedVariationOn.IsChecked == true;
+        _settings.VariationPercent = ParseInt(AdvancedVariationBox.Text, 10, 0, 100);
+        _settings.DoubleClickEnabled = AdvancedDoubleOn.IsChecked == true;
+        _settings.DoubleClickGapMs = ParseInt(AdvancedDoubleClickBox.Text, 50, 1, 1000);
+        _settings.SequenceEnabled = AdvancedSequenceOn.IsChecked == true;
         _settings.AlwaysOnTop = Topmost;
     }
 
@@ -204,6 +253,22 @@ public partial class MainWindow : Window
         HomeView.Visibility = view == HomeView ? Visibility.Visible : Visibility.Collapsed;
         AdvancedView.Visibility = view == AdvancedView ? Visibility.Visible : Visibility.Collapsed;
         SettingsView.Visibility = view == SettingsView ? Visibility.Visible : Visibility.Collapsed;
+        ResizeForView(view);
+    }
+
+    private void ResizeForView(UIElement view)
+    {
+        var targetWidth = view == AdvancedView ? AdvancedWidth : HomeWidth;
+        var targetHeight = view == AdvancedView ? AdvancedHeight : HomeHeight;
+
+        if (IsLoaded)
+        {
+            Left -= (targetWidth - ActualWidth) / 2d;
+            Top -= (targetHeight - ActualHeight) / 2d;
+        }
+
+        Width = targetWidth;
+        Height = targetHeight;
     }
 
     private void PinButton_Click(object sender, RoutedEventArgs e)
@@ -223,14 +288,93 @@ public partial class MainWindow : Window
 
     private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
 
-    private void Setting_Changed(object sender, RoutedEventArgs e) => ScheduleSave();
+    private void Setting_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading || _isSynchronizingControls)
+        {
+            return;
+        }
+
+        _isSynchronizingControls = true;
+        try
+        {
+            if (ReferenceEquals(sender, CadenceValueBox))
+            {
+                AdvancedCadenceValueBox.Text = CadenceValueBox.Text;
+            }
+            else if (ReferenceEquals(sender, CadenceUnitCombo))
+            {
+                SelectComboItem(AdvancedCadenceUnitCombo, SelectedValue(CadenceUnitCombo, "Second"));
+            }
+            else if (ReferenceEquals(sender, ActivationCombo))
+            {
+                var hold = string.Equals(SelectedText(ActivationCombo, "Toggle"), "Hold", StringComparison.OrdinalIgnoreCase);
+                AdvancedHoldMode.IsChecked = hold;
+                AdvancedToggleMode.IsChecked = !hold;
+            }
+            else if (ReferenceEquals(sender, MouseButtonCombo))
+            {
+                var button = SelectedText(MouseButtonCombo, "Left");
+                AdvancedMouseLeft.IsChecked = string.Equals(button, "Left", StringComparison.OrdinalIgnoreCase);
+                AdvancedMouseMiddle.IsChecked = string.Equals(button, "Middle", StringComparison.OrdinalIgnoreCase);
+                AdvancedMouseRight.IsChecked = string.Equals(button, "Right", StringComparison.OrdinalIgnoreCase);
+            }
+        }
+        finally
+        {
+            _isSynchronizingControls = false;
+        }
+
+        ScheduleSave();
+    }
+
+    private void AdvancedSetting_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading || _isSynchronizingControls)
+        {
+            return;
+        }
+
+        _isSynchronizingControls = true;
+        try
+        {
+            if (ReferenceEquals(sender, AdvancedCadenceValueBox))
+            {
+                CadenceValueBox.Text = AdvancedCadenceValueBox.Text;
+            }
+            else if (ReferenceEquals(sender, AdvancedCadenceUnitCombo))
+            {
+                SelectComboItem(CadenceUnitCombo, SelectedValue(AdvancedCadenceUnitCombo, "Second"));
+            }
+            else if (ReferenceEquals(sender, AdvancedToggleMode) || ReferenceEquals(sender, AdvancedHoldMode))
+            {
+                SelectComboItem(ActivationCombo, AdvancedHoldMode.IsChecked == true ? "Hold" : "Toggle");
+            }
+            else if (ReferenceEquals(sender, AdvancedMouseLeft)
+                || ReferenceEquals(sender, AdvancedMouseMiddle)
+                || ReferenceEquals(sender, AdvancedMouseRight))
+            {
+                var button = AdvancedMouseRight.IsChecked == true
+                    ? "Right"
+                    : AdvancedMouseMiddle.IsChecked == true ? "Middle" : "Left";
+                SelectComboItem(MouseButtonCombo, button);
+            }
+        }
+        finally
+        {
+            _isSynchronizingControls = false;
+        }
+
+        ScheduleSave();
+    }
 
     private void HotkeyInputBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
     {
-        _hotkeyBeforeCapture = HotkeyInputBox.Text;
+        _activeHotkeyBox = (TextBox)sender;
+        _hotkeyBeforeCapture = FormatHotkeyDisplay(_settings.HotKeyModifier, _settings.HotKey);
         _isCapturingHotkey = true;
         _capturedModifiers = ModifierKeys.None;
-        HotkeyInputBox.Text = "Press keys...";
+        _activeHotkeyBox.Text = "Press keys...";
         _hotKeyService.Unregister();
     }
 
@@ -242,7 +386,8 @@ public partial class MainWindow : Window
         }
 
         _isCapturingHotkey = false;
-        HotkeyInputBox.Text = _hotkeyBeforeCapture;
+        SetHotkeyDisplays(_hotkeyBeforeCapture);
+        _activeHotkeyBox = null;
         RegisterHotKey();
     }
 
@@ -254,7 +399,8 @@ public partial class MainWindow : Window
         if (key == Key.Escape)
         {
             _isCapturingHotkey = false;
-            HotkeyInputBox.Text = _hotkeyBeforeCapture;
+            SetHotkeyDisplays(_hotkeyBeforeCapture);
+            _activeHotkeyBox = null;
             Keyboard.ClearFocus();
             RegisterHotKey();
             return;
@@ -263,15 +409,19 @@ public partial class MainWindow : Window
         if (IsModifierKey(key))
         {
             _capturedModifiers |= ModifierForKey(key);
-            HotkeyInputBox.Text = $"{FormatModifiers(_capturedModifiers)} + ...";
+            if (_activeHotkeyBox is not null)
+            {
+                _activeHotkeyBox.Text = $"{FormatModifiers(_capturedModifiers)} + ...";
+            }
             return;
         }
 
         var modifiers = ReadActiveModifiers(e) | _capturedModifiers;
         _settings.HotKeyModifier = FormatModifiers(modifiers);
         _settings.HotKey = key.ToString();
-        HotkeyInputBox.Text = FormatHotkeyDisplay(_settings.HotKeyModifier, _settings.HotKey);
+        SetHotkeyDisplays(FormatHotkeyDisplay(_settings.HotKeyModifier, _settings.HotKey));
         _isCapturingHotkey = false;
+        _activeHotkeyBox = null;
         Keyboard.ClearFocus();
         SaveSettings();
         RegisterHotKey();
@@ -291,6 +441,38 @@ public partial class MainWindow : Window
     private void NumberOnly_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
         e.Handled = !e.Text.All(character => char.IsDigit(character) || character == '.');
+    }
+
+    private void IntegerOnly_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        e.Handled = !e.Text.All(char.IsDigit);
+    }
+
+    private void AddCursorPoint_Click(object sender, RoutedEventArgs e)
+    {
+        if (!NativeMethods.GetCursorPos(out var cursor))
+        {
+            return;
+        }
+
+        _settings.SequencePoints.Add(new ScreenPoint { X = cursor.X, Y = cursor.Y });
+        RefreshSequencePoints();
+        ScheduleSave();
+    }
+
+    private void RefreshSequencePoints()
+    {
+        SequencePointsList.ItemsSource = null;
+        SequencePointsList.ItemsSource = _settings.SequencePoints;
+        SequenceEmptyText.Visibility = _settings.SequencePoints.Count == 0
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+    }
+
+    private void SetHotkeyDisplays(string value)
+    {
+        HotkeyInputBox.Text = value;
+        AdvancedHotkeyInputBox.Text = value;
     }
 
     private void MainWindow_ContentRendered(object? sender, EventArgs e)
@@ -367,6 +549,11 @@ public partial class MainWindow : Window
 
     private static double ParseDouble(string value, double fallback, double minimum, double maximum) =>
         double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed)
+            ? Math.Clamp(parsed, minimum, maximum)
+            : fallback;
+
+    private static int ParseInt(string value, int fallback, int minimum, int maximum) =>
+        int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
             ? Math.Clamp(parsed, minimum, maximum)
             : fallback;
 
