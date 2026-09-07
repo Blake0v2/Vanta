@@ -27,6 +27,7 @@ public partial class MainWindow : Window
     private bool _hotKeyAttached;
     private bool _isCapturingHotkey;
     private string _hotkeyBeforeCapture = "Alt + Q";
+    private ModifierKeys _capturedModifiers;
 
     public MainWindow()
     {
@@ -72,7 +73,9 @@ public partial class MainWindow : Window
     {
         _settings = _settingsStore.Load();
         var period = string.IsNullOrWhiteSpace(_settings.CadencePeriod) ? "Second" : _settings.CadencePeriod;
-        var visibleRate = ToVisibleRate(_settings.CadenceValue, period);
+        var visibleRate = _settings.CadenceDisplayValue is > 0
+            ? Math.Clamp(_settings.CadenceDisplayValue.Value, 0.1, 60_000)
+            : ToVisibleRate(_settings.CadenceValue, period);
 
         CadenceValueBox.Text = visibleRate.ToString("0.##", CultureInfo.InvariantCulture);
         SelectComboItem(CadenceUnitCombo, period);
@@ -89,6 +92,7 @@ public partial class MainWindow : Window
     {
         var visibleRate = ParseDouble(CadenceValueBox.Text, 10, 0.1, 60_000);
         _settings.CadencePeriod = SelectedValue(CadenceUnitCombo, "Second");
+        _settings.CadenceDisplayValue = visibleRate;
         _settings.CadenceValue = ToClicksPerSecond(visibleRate, _settings.CadencePeriod);
         _settings.IsDelayMode = false;
         _settings.ActivationMode = SelectedText(ActivationCombo, "Toggle");
@@ -117,9 +121,12 @@ public partial class MainWindow : Window
     private void MainWindow_SourceInitialized(object? sender, EventArgs e)
     {
         var handle = new WindowInteropHelper(this).Handle;
-        _hotKeyService.Attach(handle);
-        _hotKeyAttached = true;
-        RegisterHotKey();
+        if (string.IsNullOrWhiteSpace(_capturePath))
+        {
+            _hotKeyService.Attach(handle);
+            _hotKeyAttached = true;
+            RegisterHotKey();
+        }
 
         try
         {
@@ -222,7 +229,8 @@ public partial class MainWindow : Window
     {
         _hotkeyBeforeCapture = HotkeyInputBox.Text;
         _isCapturingHotkey = true;
-        HotkeyInputBox.SelectAll();
+        _capturedModifiers = ModifierKeys.None;
+        HotkeyInputBox.Text = "Press keys...";
         _hotKeyService.Unregister();
     }
 
@@ -254,10 +262,12 @@ public partial class MainWindow : Window
 
         if (IsModifierKey(key))
         {
+            _capturedModifiers |= ModifierForKey(key);
+            HotkeyInputBox.Text = $"{FormatModifiers(_capturedModifiers)} + ...";
             return;
         }
 
-        var modifiers = Keyboard.Modifiers;
+        var modifiers = ReadActiveModifiers(e) | _capturedModifiers;
         _settings.HotKeyModifier = FormatModifiers(modifiers);
         _settings.HotKey = key.ToString();
         HotkeyInputBox.Text = FormatHotkeyDisplay(_settings.HotKeyModifier, _settings.HotKey);
@@ -269,7 +279,7 @@ public partial class MainWindow : Window
 
     private void ScheduleSave()
     {
-        if (_isLoading || _saveTimer is null)
+        if (_isLoading || _saveTimer is null || !string.IsNullOrWhiteSpace(_capturePath))
         {
             return;
         }
@@ -322,7 +332,10 @@ public partial class MainWindow : Window
     {
         _holdTimer.Stop();
         _saveTimer.Stop();
-        SaveSettings();
+        if (string.IsNullOrWhiteSpace(_capturePath))
+        {
+            SaveSettings();
+        }
         _clickService.Dispose();
         _hotKeyService.Dispose();
     }
@@ -376,6 +389,41 @@ public partial class MainWindow : Window
     private static bool IsModifierKey(Key key) => key is
         Key.LeftAlt or Key.RightAlt or Key.LeftCtrl or Key.RightCtrl or
         Key.LeftShift or Key.RightShift or Key.LWin or Key.RWin;
+
+    private static ModifierKeys ModifierForKey(Key key) => key switch
+    {
+        Key.LeftAlt or Key.RightAlt => ModifierKeys.Alt,
+        Key.LeftCtrl or Key.RightCtrl => ModifierKeys.Control,
+        Key.LeftShift or Key.RightShift => ModifierKeys.Shift,
+        Key.LWin or Key.RWin => ModifierKeys.Windows,
+        _ => ModifierKeys.None
+    };
+
+    private static ModifierKeys ReadActiveModifiers(KeyEventArgs e)
+    {
+        var modifiers = Keyboard.Modifiers;
+        if (e.Key == Key.System || Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
+        {
+            modifiers |= ModifierKeys.Alt;
+        }
+
+        if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+        {
+            modifiers |= ModifierKeys.Control;
+        }
+
+        if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+        {
+            modifiers |= ModifierKeys.Shift;
+        }
+
+        if (Keyboard.IsKeyDown(Key.LWin) || Keyboard.IsKeyDown(Key.RWin))
+        {
+            modifiers |= ModifierKeys.Windows;
+        }
+
+        return modifiers;
+    }
 
     private static string FormatModifiers(ModifierKeys modifiers)
     {

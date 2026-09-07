@@ -4,6 +4,7 @@ public sealed class AppSettings
 {
     public double CadenceValue { get; set; } = 10;
     public string CadencePeriod { get; set; } = "Second";
+    public double? CadenceDisplayValue { get; set; }
     public bool IsDelayMode { get; set; }
     public string HotKeyModifier { get; set; } = "Alt";
     public string HotKey { get; set; } = "Q";
@@ -32,6 +33,7 @@ public sealed class AppSettings
         {
             CadenceValue = CadenceValue,
             CadencePeriod = CadencePeriod,
+            CadenceDisplayValue = CadenceDisplayValue,
             IsDelayMode = IsDelayMode,
             HotKeyModifier = HotKeyModifier,
             HotKey = HotKey,

@@ -127,10 +127,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="ItemRoot" Property="Background" Value="#202022" />
+                                <Setter TargetName="ItemRoot" Property="Background" Value="#18181A" />
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="ItemRoot" Property="Background" Value="#29292C" />
+                                <Setter TargetName="ItemRoot" Property="Background" Value="#202023" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -165,7 +165,7 @@
                                                 <Setter TargetName="HoverRoot" Property="Background" Value="#171719" />
                                             </Trigger>
                                             <Trigger Property="IsChecked" Value="True">
-                                                <Setter TargetName="HoverRoot" Property="Background" Value="#222225" />
+                                                <Setter TargetName="HoverRoot" Property="Background" Value="#18181A" />
                                                 <Setter TargetName="HoverRoot" Property="CornerRadius" Value="0,8,0,0" />
                                             </Trigger>
                                         </ControlTemplate.Triggers>
