@@ -300,12 +300,12 @@
         </Style>
 
         <Style x:Key="AdvancedCompactSegment" TargetType="RadioButton" BasedOn="{StaticResource AdvancedSegment}">
-            <Setter Property="Height" Value="28" />
+            <Setter Property="Height" Value="30" />
             <Setter Property="FontSize" Value="12.5" />
         </Style>
 
         <Style x:Key="AdvancedCompactSegmentShell" TargetType="Border" BasedOn="{StaticResource AdvancedSegmentShell}">
-            <Setter Property="Height" Value="32" />
+            <Setter Property="Height" Value="34" />
         </Style>
 
         <Style x:Key="AdvancedAction" TargetType="Button">
