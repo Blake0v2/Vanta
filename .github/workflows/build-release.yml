@@ -1,0 +1,109 @@
+name: Build and release Vanta
+
+on:
+  push:
+    branches: [master, main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+  VERSION: '0.1.0'
+  SIGN_RELEASE: 'false'
+
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Resolve release version
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          "VERSION=$('${{ github.ref_name }}'.TrimStart('v'))" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Restore and test build
+        shell: pwsh
+        run: |
+          dotnet restore Vanta.sln --configfile NuGet.Config
+          dotnet build Vanta.sln --configuration Release --no-restore -p:Version=$env:VERSION -warnaserror
+
+      - name: Detect signing certificate
+        shell: pwsh
+        env:
+          CODE_SIGNING_PFX: ${{ secrets.CODE_SIGNING_PFX }}
+        run: |
+          if (-not [string]::IsNullOrWhiteSpace($env:CODE_SIGNING_PFX)) {
+            'SIGN_RELEASE=true' | Out-File -FilePath $env:GITHUB_ENV -Append
+          }
+
+      - name: Publish self-contained Windows app
+        shell: pwsh
+        run: |
+          dotnet publish src/Vanta.App/Vanta.App.csproj --configuration Release --runtime win-x64 --self-contained true --source https://api.nuget.org/v3/index.json -p:Version=$env:VERSION -p:DebugType=None -p:DebugSymbols=false --output artifacts/publish
+
+      - name: Sign application files
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && env.SIGN_RELEASE == 'true' }}
+        shell: pwsh
+        env:
+          CODE_SIGNING_PFX: ${{ secrets.CODE_SIGNING_PFX }}
+          CODE_SIGNING_PASSWORD: ${{ secrets.CODE_SIGNING_PASSWORD }}
+        run: |
+          $certificatePath = Join-Path $env:RUNNER_TEMP 'vanta-signing.pfx'
+          [IO.File]::WriteAllBytes($certificatePath, [Convert]::FromBase64String($env:CODE_SIGNING_PFX))
+          $signTool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Recurse -Filter signtool.exe | Where-Object FullName -Match '\\x64\\' | Sort-Object FullName | Select-Object -Last 1 -ExpandProperty FullName
+          & $signTool sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /f $certificatePath /p $env:CODE_SIGNING_PASSWORD artifacts/publish/Vanta.exe
+          & $signTool sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /f $certificatePath /p $env:CODE_SIGNING_PASSWORD artifacts/publish/Vanta.dll
+
+      - name: Build MSI installer
+        shell: pwsh
+        run: |
+          dotnet tool install --tool-path .tools wix --version 5.0.2 --add-source https://api.nuget.org/v3/index.json
+          .tools/wix build installer/Product.wxs -arch x64 -d "PublishDir=$((Resolve-Path 'artifacts/publish').Path)" -d "Version=$env:VERSION" -out "artifacts/Vanta-$env:VERSION-x64.msi"
+
+      - name: Sign MSI installer
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && env.SIGN_RELEASE == 'true' }}
+        shell: pwsh
+        env:
+          CODE_SIGNING_PFX: ${{ secrets.CODE_SIGNING_PFX }}
+          CODE_SIGNING_PASSWORD: ${{ secrets.CODE_SIGNING_PASSWORD }}
+        run: |
+          $certificatePath = Join-Path $env:RUNNER_TEMP 'vanta-signing.pfx'
+          $signTool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Recurse -Filter signtool.exe | Where-Object FullName -Match '\\x64\\' | Sort-Object FullName | Select-Object -Last 1 -ExpandProperty FullName
+          & $signTool sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /f $certificatePath /p $env:CODE_SIGNING_PASSWORD "artifacts/Vanta-$env:VERSION-x64.msi"
+
+      - name: Create portable archive and checksums
+        shell: pwsh
+        run: |
+          Compress-Archive -Path artifacts/publish/* -DestinationPath "artifacts/Vanta-$env:VERSION-win-x64.zip"
+          Get-FileHash "artifacts/Vanta-$env:VERSION-x64.msi", "artifacts/Vanta-$env:VERSION-win-x64.zip" -Algorithm SHA256 | ForEach-Object { "$($_.Hash.ToLower())  $([IO.Path]::GetFileName($_.Path))" } | Set-Content "artifacts/SHA256SUMS.txt"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vanta-${{ env.VERSION }}-windows
+          path: |
+            artifacts/*.msi
+            artifacts/*.zip
+            artifacts/SHA256SUMS.txt
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" artifacts/*.msi artifacts/*.zip artifacts/SHA256SUMS.txt --verify-tag --generate-notes --title "Vanta $env:VERSION"

@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\Vanta.ico</ApplicationIcon>
+    <AssemblyName>Vanta</AssemblyName>
+    <RootNamespace>Vanta</RootNamespace>
+    <Version>0.1.0</Version>
+    <Authors>Vanta</Authors>
+    <Product>Vanta Auto Clicker</Product>
+    <Description>A precise, lightweight auto clicker for Windows.</Description>
+    <Copyright>Copyright © 2026 Vanta</Copyright>
+    <Deterministic>true</Deterministic>
+    <DebugType>embedded</DebugType>
+    <PublishSingleFile>false</PublishSingleFile>
+    <PublishReadyToRun>false</PublishReadyToRun>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Vanta Logo.png" />
+  </ItemGroup>
+</Project>

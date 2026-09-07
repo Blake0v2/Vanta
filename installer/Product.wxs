@@ -1,0 +1,40 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Vanta"
+           Manufacturer="Vanta"
+           Version="$(var.Version)"
+           UpgradeCode="7F2DE11A-1961-4919-9385-1DFB3A4FD04B"
+           Scope="perMachine"
+           InstallerVersion="500">
+    <SummaryInformation Description="Vanta Auto Clicker for Windows" Manufacturer="Vanta" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Vanta is already installed." />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Icon Id="VantaIcon" SourceFile="src\Vanta.App\Assets\Vanta.ico" />
+    <Property Id="ARPPRODUCTICON" Value="VantaIcon" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/Blake0v2/Vanta" />
+    <Property Id="ARPNOREPAIR" Value="yes" />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="Vanta">
+        <Files Include="$(var.PublishDir)\**">
+          <Exclude Files="$(var.PublishDir)\*.pdb" />
+        </Files>
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="Vanta">
+        <Component Id="ApplicationShortcut" Guid="E9F49FE9-BD18-4D56-8D7C-190F6F7E53DD">
+          <Shortcut Id="StartMenuShortcut"
+                    Name="Vanta"
+                    Description="Vanta Auto Clicker"
+                    Target="[INSTALLFOLDER]Vanta.exe"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Icon="VantaIcon" />
+          <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
+          <RegistryValue Root="HKLM" Key="Software\Vanta" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+  </Package>
+</Wix>

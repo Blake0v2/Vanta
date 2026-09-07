@@ -1,0 +1,28 @@
+# Build outputs
+bin/
+obj/
+artifacts/
+.tools/
+.dotnet/
+
+# Local SDK bootstrap and state
+dotnet-install.ps1
+.nuget/
+.templateengine/
+.dotnetUserLevelCache/
+
+# IDE and user files
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Signing material must never be committed
+*.pfx
+*.p12
+*.snk
+*.cer
+
+# Local settings and logs
+settings.json
+*.log
