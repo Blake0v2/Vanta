@@ -25,6 +25,8 @@ public partial class MainWindow : Window
     private AppSettings _settings = new();
     private bool _isLoading = true;
     private bool _hotKeyAttached;
+    private bool _isCapturingHotkey;
+    private string _hotkeyBeforeCapture = "Alt + Q";
 
     public MainWindow()
     {
@@ -44,22 +46,12 @@ public partial class MainWindow : Window
         _holdTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(18) };
         _holdTimer.Tick += HoldTimer_Tick;
 
-        PopulateHotKeys();
         LoadSettings();
 
         _hotKeyService.Pressed += HotKeyService_Pressed;
         SourceInitialized += MainWindow_SourceInitialized;
         ContentRendered += MainWindow_ContentRendered;
         Closing += MainWindow_Closing;
-    }
-
-    private void PopulateHotKeys()
-    {
-        foreach (var key in Enumerable.Range('A', 26).Select(value => ((char)value).ToString())
-                     .Concat(Enumerable.Range(1, 12).Select(value => $"F{value}")))
-        {
-            HotKeyCombo.Items.Add(new ComboBoxItem { Content = key });
-        }
     }
 
     private void LoadSettings()
@@ -70,8 +62,7 @@ public partial class MainWindow : Window
 
         CadenceValueBox.Text = visibleRate.ToString("0.##", CultureInfo.InvariantCulture);
         SelectComboItem(CadenceUnitCombo, period);
-        SelectComboItem(ModifierCombo, _settings.HotKeyModifier);
-        SelectComboItem(HotKeyCombo, _settings.HotKey);
+        HotkeyInputBox.Text = FormatHotkeyDisplay(_settings.HotKeyModifier, _settings.HotKey);
         SelectComboItem(ActivationCombo, _settings.ActivationMode);
         SelectComboItem(MouseButtonCombo, _settings.MouseButton);
         Topmost = _settings.AlwaysOnTop;
@@ -86,8 +77,6 @@ public partial class MainWindow : Window
         _settings.CadencePeriod = SelectedText(CadenceUnitCombo, "Second");
         _settings.CadenceValue = _settings.CadencePeriod == "Minute" ? visibleRate / 60d : visibleRate;
         _settings.IsDelayMode = false;
-        _settings.HotKeyModifier = SelectedText(ModifierCombo, "Alt");
-        _settings.HotKey = SelectedText(HotKeyCombo, "Q");
         _settings.ActivationMode = SelectedText(ActivationCombo, "Toggle");
         _settings.MouseButton = SelectedText(MouseButtonCombo, "Left");
         _settings.AlwaysOnTop = Topmost;
@@ -215,9 +204,53 @@ public partial class MainWindow : Window
 
     private void Setting_Changed(object sender, RoutedEventArgs e) => ScheduleSave();
 
-    private void Hotkey_Changed(object sender, SelectionChangedEventArgs e)
+    private void HotkeyInputBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
     {
-        ScheduleSave();
+        _hotkeyBeforeCapture = HotkeyInputBox.Text;
+        _isCapturingHotkey = true;
+        HotkeyInputBox.Text = "Press shortcut…";
+        HotkeyInputBox.SelectAll();
+        _hotKeyService.Unregister();
+    }
+
+    private void HotkeyInputBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        if (!_isCapturingHotkey)
+        {
+            return;
+        }
+
+        _isCapturingHotkey = false;
+        HotkeyInputBox.Text = _hotkeyBeforeCapture;
+        RegisterHotKey();
+    }
+
+    private void HotkeyInputBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        e.Handled = true;
+
+        if (key == Key.Escape)
+        {
+            _isCapturingHotkey = false;
+            HotkeyInputBox.Text = _hotkeyBeforeCapture;
+            Keyboard.ClearFocus();
+            RegisterHotKey();
+            return;
+        }
+
+        if (IsModifierKey(key))
+        {
+            return;
+        }
+
+        var modifiers = Keyboard.Modifiers;
+        _settings.HotKeyModifier = FormatModifiers(modifiers);
+        _settings.HotKey = key.ToString();
+        HotkeyInputBox.Text = FormatHotkeyDisplay(_settings.HotKeyModifier, _settings.HotKey);
+        _isCapturingHotkey = false;
+        Keyboard.ClearFocus();
+        SaveSettings();
         RegisterHotKey();
     }
 
@@ -302,4 +335,68 @@ public partial class MainWindow : Window
         double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed)
             ? Math.Clamp(parsed, minimum, maximum)
             : fallback;
+
+    private static bool IsModifierKey(Key key) => key is
+        Key.LeftAlt or Key.RightAlt or Key.LeftCtrl or Key.RightCtrl or
+        Key.LeftShift or Key.RightShift or Key.LWin or Key.RWin;
+
+    private static string FormatModifiers(ModifierKeys modifiers)
+    {
+        var parts = new List<string>();
+        if (modifiers.HasFlag(ModifierKeys.Control)) parts.Add("Ctrl");
+        if (modifiers.HasFlag(ModifierKeys.Alt)) parts.Add("Alt");
+        if (modifiers.HasFlag(ModifierKeys.Shift)) parts.Add("Shift");
+        if (modifiers.HasFlag(ModifierKeys.Windows)) parts.Add("Win");
+        return parts.Count == 0 ? "None" : string.Join(" + ", parts);
+    }
+
+    private static string FormatHotkeyDisplay(string modifiers, string keyName)
+    {
+        var hasShift = modifiers.Split('+', StringSplitOptions.TrimEntries)
+            .Any(part => string.Equals(part, "Shift", StringComparison.OrdinalIgnoreCase));
+        var key = Enum.TryParse<Key>(keyName, true, out var parsed) ? parsed : Key.Q;
+        var displayKey = KeyDisplayName(key, hasShift);
+        return string.Equals(modifiers, "None", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(modifiers)
+            ? displayKey
+            : $"{modifiers} + {displayKey}";
+    }
+
+    private static string KeyDisplayName(Key key, bool shift)
+    {
+        if (key is >= Key.A and <= Key.Z)
+        {
+            return key.ToString().ToUpperInvariant();
+        }
+
+        if (key is >= Key.D0 and <= Key.D9)
+        {
+            return key.ToString()[1..];
+        }
+
+        if (key is >= Key.NumPad0 and <= Key.NumPad9)
+        {
+            return $"Num {key.ToString()[6..]}";
+        }
+
+        return key switch
+        {
+            Key.OemPlus => shift ? "+" : "=",
+            Key.OemMinus => shift ? "_" : "-",
+            Key.OemComma => shift ? "<" : ",",
+            Key.OemPeriod => shift ? ">" : ".",
+            Key.OemQuestion => shift ? "?" : "/",
+            Key.OemSemicolon => shift ? ":" : ";",
+            Key.OemQuotes => shift ? "\"" : "'",
+            Key.OemOpenBrackets => shift ? "{" : "[",
+            Key.OemCloseBrackets => shift ? "}" : "]",
+            Key.OemPipe => shift ? "|" : "\\",
+            Key.OemTilde => shift ? "~" : "`",
+            Key.Space => "Space",
+            Key.Return => "Enter",
+            Key.Back => "Backspace",
+            Key.Prior => "Page Up",
+            Key.Next => "Page Down",
+            _ => key.ToString()
+        };
+    }
 }

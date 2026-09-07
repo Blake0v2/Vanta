@@ -25,13 +25,7 @@ internal sealed class GlobalHotKeyService : IDisposable
     {
         Unregister();
 
-        var modifiers = modifier switch
-        {
-            "Ctrl" => NativeMethods.ModControl,
-            "Shift" => NativeMethods.ModShift,
-            "Win" => NativeMethods.ModWin,
-            _ => NativeMethods.ModAlt
-        };
+        var modifiers = ParseModifiers(modifier);
 
         var virtualKey = KeyInterop.VirtualKeyFromKey(ParseKey(key));
         if (!NativeMethods.RegisterHotKey(_windowHandle, HotKeyId, modifiers | NativeMethods.ModNoRepeat, (uint)virtualKey))
@@ -60,7 +54,25 @@ internal sealed class GlobalHotKeyService : IDisposable
         return IntPtr.Zero;
     }
 
-    private void Unregister()
+    private static uint ParseModifiers(string modifiers)
+    {
+        var flags = 0u;
+        foreach (var modifier in modifiers.Split('+', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+        {
+            flags |= modifier.ToLowerInvariant() switch
+            {
+                "ctrl" or "control" => NativeMethods.ModControl,
+                "alt" => NativeMethods.ModAlt,
+                "shift" => NativeMethods.ModShift,
+                "win" or "windows" => NativeMethods.ModWin,
+                _ => 0u
+            };
+        }
+
+        return flags;
+    }
+
+    public void Unregister()
     {
         if (_registered)
         {
