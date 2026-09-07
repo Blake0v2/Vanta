@@ -151,7 +151,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
-                            <ToggleButton x:Name="DropDownToggle" Focusable="False" ClickMode="Press" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Background="Transparent" BorderThickness="0" FocusVisualStyle="{x:Null}" Content="{TemplateBinding SelectionBoxItem}">
+                            <ToggleButton x:Name="DropDownToggle" Focusable="False" ClickMode="Press" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Background="Transparent" BorderThickness="0" FocusVisualStyle="{x:Null}" Content="{Binding SelectedItem.Tag, RelativeSource={RelativeSource AncestorType=ComboBox}}">
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="ToggleButton">
                                         <Border x:Name="HoverRoot" Background="{TemplateBinding Background}" CornerRadius="0,8,8,0" Padding="4,0">
@@ -166,13 +166,14 @@
                                             </Trigger>
                                             <Trigger Property="IsChecked" Value="True">
                                                 <Setter TargetName="HoverRoot" Property="Background" Value="#222225" />
+                                                <Setter TargetName="HoverRoot" Property="CornerRadius" Value="0,8,0,0" />
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
                                 </ToggleButton.Template>
                             </ToggleButton>
-                            <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
-                                <Border Background="#09090A" BorderBrush="#62656A" BorderThickness="2,0,2,2" CornerRadius="0,0,8,8" Margin="0,-2,0,0" Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="220">
+                            <Popup x:Name="PART_Popup" Placement="Bottom" VerticalOffset="-2" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                                <Border Background="#09090A" BorderBrush="#62656A" BorderThickness="2,0,2,2" CornerRadius="0,0,8,8" Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="220">
                                     <ItemsPresenter />
                                 </Border>
                             </Popup>

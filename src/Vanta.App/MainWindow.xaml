@@ -57,7 +57,16 @@
                     <ColumnDefinition Width="190" />
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource HomeControl}">
+                <Border Grid.Column="0">
+                    <Border.Style>
+                        <Style TargetType="Border" BasedOn="{StaticResource HomeControl}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDropDownOpen, ElementName=CadenceUnitCombo}" Value="True">
+                                    <Setter Property="CornerRadius" Value="9,9,0,9" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="57" />
@@ -70,7 +79,7 @@
                         <Border Grid.Column="1" Style="{StaticResource Divider}" />
                         <TextBlock Grid.Column="2" Text="Clicks Per" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         <Border Grid.Column="3" Style="{StaticResource Divider}" />
-                        <ComboBox x:Name="CadenceUnitCombo" Grid.Column="4" Style="{StaticResource InlineCombo}" SelectionChanged="Setting_Changed">
+                        <ComboBox x:Name="CadenceUnitCombo" Grid.Column="4" Style="{StaticResource InlineCombo}" FontSize="15" SelectionChanged="Setting_Changed">
                             <ComboBoxItem Content="ms" Tag="Millisecond" />
                             <ComboBoxItem Content="s" Tag="Second" IsSelected="True" />
                             <ComboBoxItem Content="m" Tag="Minute" />
@@ -79,7 +88,16 @@
                     </Grid>
                 </Border>
 
-                <Border Grid.Column="2" Style="{StaticResource HomeControl}">
+                <Border Grid.Column="2">
+                    <Border.Style>
+                        <Style TargetType="Border" BasedOn="{StaticResource HomeControl}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDropDownOpen, ElementName=ActivationCombo}" Value="True">
+                                    <Setter Property="CornerRadius" Value="9,9,0,9" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="127" />
@@ -89,13 +107,22 @@
                         <TextBox x:Name="HotkeyInputBox" Grid.Column="0" Style="{StaticResource HotkeyCapture}" Text="Alt + Q" IsReadOnly="True" IsReadOnlyCaretVisible="False" PreviewKeyDown="HotkeyInputBox_PreviewKeyDown" GotKeyboardFocus="HotkeyInputBox_GotKeyboardFocus" LostKeyboardFocus="HotkeyInputBox_LostKeyboardFocus" />
                         <Border Grid.Column="1" Style="{StaticResource Divider}" />
                         <ComboBox x:Name="ActivationCombo" Grid.Column="2" Style="{StaticResource InlineCombo}" SelectionChanged="Setting_Changed">
-                            <ComboBoxItem Content="Toggle" IsSelected="True" />
-                            <ComboBoxItem Content="Hold" />
+                            <ComboBoxItem Content="Toggle" Tag="Toggle" IsSelected="True" />
+                            <ComboBoxItem Content="Hold" Tag="Hold" />
                         </ComboBox>
                     </Grid>
                 </Border>
 
-                <Border Grid.Column="4" Style="{StaticResource HomeControl}">
+                <Border Grid.Column="4">
+                    <Border.Style>
+                        <Style TargetType="Border" BasedOn="{StaticResource HomeControl}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDropDownOpen, ElementName=MouseButtonCombo}" Value="True">
+                                    <Setter Property="CornerRadius" Value="9,9,0,9" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="99" />
@@ -105,9 +132,9 @@
                         <TextBlock Grid.Column="0" Text="Mouse" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         <Border Grid.Column="1" Style="{StaticResource Divider}" />
                         <ComboBox x:Name="MouseButtonCombo" Grid.Column="2" Style="{StaticResource InlineCombo}" SelectionChanged="Setting_Changed">
-                            <ComboBoxItem Content="Left" IsSelected="True" />
-                            <ComboBoxItem Content="Middle" />
-                            <ComboBoxItem Content="Right" />
+                            <ComboBoxItem Content="Left" Tag="Left" IsSelected="True" />
+                            <ComboBoxItem Content="Middle" Tag="Middle" />
+                            <ComboBoxItem Content="Right" Tag="Right" />
                         </ComboBox>
                     </Grid>
                 </Border>
