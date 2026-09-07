@@ -170,7 +170,7 @@
                                 </ToggleButton.Template>
                             </ToggleButton>
                             <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
-                                <Border Background="#121214" BorderBrush="#454549" BorderThickness="1" CornerRadius="8" Margin="0,5,0,0" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="220">
+                                <Border Background="#121214" BorderBrush="#62656A" BorderThickness="2" CornerRadius="8" Margin="0,5,0,0" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="220">
                                     <ItemsPresenter Margin="2" />
                                 </Border>
                             </Popup>
@@ -184,7 +184,7 @@
             <Setter Property="Height" Value="50" />
             <Setter Property="Background" Value="#020202" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderThickness" Value="2" />
             <Setter Property="CornerRadius" Value="9" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
         </Style>
