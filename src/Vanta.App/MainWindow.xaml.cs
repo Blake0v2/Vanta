@@ -273,17 +273,6 @@ public partial class MainWindow : Window
         AdvancedView.Visibility = view == AdvancedView ? Visibility.Visible : Visibility.Collapsed;
         SettingsView.Visibility = view == SettingsView ? Visibility.Visible : Visibility.Collapsed;
         ResizeForView(view);
-
-        view.BeginAnimation(OpacityProperty, null);
-        view.Opacity = 1;
-        if (IsLoaded && string.IsNullOrWhiteSpace(_capturePath))
-        {
-            view.BeginAnimation(OpacityProperty, new DoubleAnimation(0.15, 1, TimeSpan.FromMilliseconds(230))
-            {
-                EasingFunction = new SineEase { EasingMode = EasingMode.EaseOut },
-                FillBehavior = FillBehavior.Stop
-            });
-        }
     }
 
     private void ResizeForView(UIElement view)
@@ -300,6 +289,14 @@ public partial class MainWindow : Window
 
         var currentWidth = ActualWidth;
         var currentHeight = ActualHeight;
+        var currentLeft = Left;
+        var currentTop = Top;
+        var minimumLeft = SystemParameters.VirtualScreenLeft;
+        var maximumLeft = Math.Max(minimumLeft, minimumLeft + SystemParameters.VirtualScreenWidth - targetWidth);
+        var minimumTop = SystemParameters.VirtualScreenTop;
+        var maximumTop = Math.Max(minimumTop, minimumTop + SystemParameters.VirtualScreenHeight - targetHeight);
+        var targetLeft = Math.Clamp(currentLeft - ((targetWidth - currentWidth) / 2d), minimumLeft, maximumLeft);
+        var targetTop = Math.Clamp(currentTop - ((targetHeight - currentHeight) / 2d), minimumTop, maximumTop);
         var resizeVersion = ++_resizeVersion;
 
         BeginAnimation(WidthProperty, null);
@@ -309,10 +306,14 @@ public partial class MainWindow : Window
 
         Width = targetWidth;
         Height = targetHeight;
+        Left = targetLeft;
+        Top = targetTop;
 
-        var duration = new Duration(TimeSpan.FromMilliseconds(285));
+        var duration = new Duration(TimeSpan.FromMilliseconds(190));
         var widthAnimation = CreateResizeAnimation(currentWidth, targetWidth, duration);
         var heightAnimation = CreateResizeAnimation(currentHeight, targetHeight, duration);
+        var leftAnimation = CreateResizeAnimation(currentLeft, targetLeft, duration);
+        var topAnimation = CreateResizeAnimation(currentTop, targetTop, duration);
         heightAnimation.Completed += (_, _) =>
         {
             if (resizeVersion != _resizeVersion)
@@ -322,19 +323,25 @@ public partial class MainWindow : Window
 
             BeginAnimation(WidthProperty, null);
             BeginAnimation(HeightProperty, null);
+            BeginAnimation(LeftProperty, null);
+            BeginAnimation(TopProperty, null);
             Width = targetWidth;
             Height = targetHeight;
+            Left = targetLeft;
+            Top = targetTop;
         };
 
         BeginAnimation(WidthProperty, widthAnimation);
         BeginAnimation(HeightProperty, heightAnimation);
+        BeginAnimation(LeftProperty, leftAnimation);
+        BeginAnimation(TopProperty, topAnimation);
     }
 
     private static DoubleAnimation CreateResizeAnimation(double from, double to, Duration duration)
     {
         return new DoubleAnimation(from, to, duration)
         {
-            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
             FillBehavior = FillBehavior.Stop
         };
     }

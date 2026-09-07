@@ -264,10 +264,16 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="SegmentRoot" Margin="2" Background="{TemplateBinding Background}" CornerRadius="5">
+                        <Border x:Name="SegmentRoot" Background="{TemplateBinding Background}" CornerRadius="0">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="Left">
+                                <Setter TargetName="SegmentRoot" Property="CornerRadius" Value="4,0,0,4" />
+                            </Trigger>
+                            <Trigger Property="Tag" Value="Right">
+                                <Setter TargetName="SegmentRoot" Property="CornerRadius" Value="0,4,4,0" />
+                            </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="SegmentRoot" Property="Background" Value="#19191C" />
                             </Trigger>
@@ -291,16 +297,6 @@
             <Setter Property="BorderThickness" Value="2" />
             <Setter Property="CornerRadius" Value="6" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
-        </Style>
-
-        <Style x:Key="AdvancedHeaderSegment" TargetType="RadioButton" BasedOn="{StaticResource AdvancedSegment}">
-            <Setter Property="Height" Value="24" />
-            <Setter Property="FontSize" Value="12" />
-        </Style>
-
-        <Style x:Key="AdvancedHeaderSegmentShell" TargetType="Border" BasedOn="{StaticResource AdvancedSegmentShell}">
-            <Setter Property="Height" Value="28" />
-            <Setter Property="CornerRadius" Value="5" />
         </Style>
 
         <Style x:Key="AdvancedAction" TargetType="Button">
