@@ -58,7 +58,7 @@ public partial class MainWindow : Window
     {
         _settings = _settingsStore.Load();
         var period = string.IsNullOrWhiteSpace(_settings.CadencePeriod) ? "Second" : _settings.CadencePeriod;
-        var visibleRate = period == "Minute" ? _settings.CadenceValue * 60d : _settings.CadenceValue;
+        var visibleRate = ToVisibleRate(_settings.CadenceValue, period);
 
         CadenceValueBox.Text = visibleRate.ToString("0.##", CultureInfo.InvariantCulture);
         SelectComboItem(CadenceUnitCombo, period);
@@ -75,7 +75,7 @@ public partial class MainWindow : Window
     {
         var visibleRate = ParseDouble(CadenceValueBox.Text, 10, 0.1, 60_000);
         _settings.CadencePeriod = SelectedText(CadenceUnitCombo, "Second");
-        _settings.CadenceValue = _settings.CadencePeriod == "Minute" ? visibleRate / 60d : visibleRate;
+        _settings.CadenceValue = ToClicksPerSecond(visibleRate, _settings.CadencePeriod);
         _settings.IsDelayMode = false;
         _settings.ActivationMode = SelectedText(ActivationCombo, "Toggle");
         _settings.MouseButton = SelectedText(MouseButtonCombo, "Left");
@@ -195,7 +195,7 @@ public partial class MainWindow : Window
     private void UpdatePinVisual()
     {
         PinIcon.Foreground = Topmost ? (Brush)FindResource("AccentBrush") : new SolidColorBrush(Color.FromRgb(241, 241, 242));
-        PinButton.Background = Topmost ? new SolidColorBrush(Color.FromRgb(22, 57, 31)) : Brushes.Transparent;
+        PinButton.Background = Topmost ? new SolidColorBrush(Color.FromRgb(8, 46, 79)) : Brushes.Transparent;
     }
 
     private void MinimizeButton_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
@@ -208,7 +208,6 @@ public partial class MainWindow : Window
     {
         _hotkeyBeforeCapture = HotkeyInputBox.Text;
         _isCapturingHotkey = true;
-        HotkeyInputBox.Text = "Press shortcut…";
         HotkeyInputBox.SelectAll();
         _hotKeyService.Unregister();
     }
@@ -335,6 +334,22 @@ public partial class MainWindow : Window
         double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed)
             ? Math.Clamp(parsed, minimum, maximum)
             : fallback;
+
+    private static double ToVisibleRate(double clicksPerSecond, string period) => period switch
+    {
+        "Millisecond" => clicksPerSecond / 1000d,
+        "Minute" => clicksPerSecond * 60d,
+        "Hour" => clicksPerSecond * 3600d,
+        _ => clicksPerSecond
+    };
+
+    private static double ToClicksPerSecond(double visibleRate, string period) => period switch
+    {
+        "Millisecond" => visibleRate * 1000d,
+        "Minute" => visibleRate / 60d,
+        "Hour" => visibleRate / 3600d,
+        _ => visibleRate
+    };
 
     private static bool IsModifierKey(Key key) => key is
         Key.LeftAlt or Key.RightAlt or Key.LeftCtrl or Key.RightCtrl or

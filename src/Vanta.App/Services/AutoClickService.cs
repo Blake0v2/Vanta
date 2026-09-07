@@ -106,7 +106,7 @@ internal sealed class AutoClickService : IDisposable
     {
         return settings.IsDelayMode
             ? Math.Clamp(settings.CadenceValue, 1, 60_000)
-            : 1000d / Math.Clamp(settings.CadenceValue, 0.1, 1000);
+            : 1000d / Math.Clamp(settings.CadenceValue, 0.000001, 1000);
     }
 
     private static async Task SendClickAsync(string button, int durationPercent, double intervalMs, CancellationToken token)

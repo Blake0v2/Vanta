@@ -6,7 +6,7 @@ Vanta is a lightweight, native Windows auto clicker with a compact dark interfac
 
 - Compact Home screen modeled on the supplied Vanta reference
 - Global configurable hotkey with toggle and hold activation modes
-- Clicks-per-second or clicks-per-minute cadence
+- Clicks-per-millisecond, second, minute, or hour cadence
 - Left, middle, and right mouse buttons
 - Persistent per-user settings and always-on-top mode
 - Fixed-size, non-maximizable window with working Home, Advanced, and Settings navigation

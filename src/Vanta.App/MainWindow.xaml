@@ -5,7 +5,8 @@
         Title="Vanta" Width="804" Height="203"
         MinWidth="804" MaxWidth="804" MinHeight="203" MaxHeight="203"
         ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
-        WindowStyle="None" Background="{StaticResource BackgroundBrush}">
+        WindowStyle="None" Background="{StaticResource BackgroundBrush}"
+        UseLayoutRounding="True" SnapsToDevicePixels="True">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="49" ResizeBorderThickness="0" CornerRadius="10" GlassFrameThickness="0" UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
@@ -70,8 +71,10 @@
                         <TextBlock Grid.Column="2" Text="Clicks Per" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         <Border Grid.Column="3" Style="{StaticResource Divider}" />
                         <ComboBox x:Name="CadenceUnitCombo" Grid.Column="4" Style="{StaticResource InlineCombo}" SelectionChanged="Setting_Changed">
+                            <ComboBoxItem Content="Millisecond" />
                             <ComboBoxItem Content="Second" IsSelected="True" />
                             <ComboBoxItem Content="Minute" />
+                            <ComboBoxItem Content="Hour" />
                         </ComboBox>
                     </Grid>
                 </Border>

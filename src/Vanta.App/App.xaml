@@ -5,9 +5,9 @@
     <Application.Resources>
         <SolidColorBrush x:Key="BackgroundBrush" Color="#000000" />
         <SolidColorBrush x:Key="HeaderBrush" Color="#050505" />
-        <SolidColorBrush x:Key="BorderBrush" Color="#55585C" />
+        <SolidColorBrush x:Key="BorderBrush" Color="#62656A" />
         <SolidColorBrush x:Key="TextBrush" Color="#F7F7F8" />
-        <SolidColorBrush x:Key="AccentBrush" Color="#45D267" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#0088FF" />
 
         <Style TargetType="Control">
             <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI" />
@@ -67,7 +67,7 @@
                                 <Setter TargetName="Root" Property="Background" Value="#171719" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#16391F" />
+                                <Setter TargetName="Root" Property="Background" Value="#082E4F" />
                                 <Setter TargetName="Icon" Property="Foreground" Value="{StaticResource AccentBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -86,7 +86,7 @@
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="FontSize" Value="17" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="SelectionBrush" Value="#426F4B" />
+            <Setter Property="SelectionBrush" Value="#245F91" />
         </Style>
 
         <Style x:Key="HotkeyCapture" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
@@ -186,6 +186,7 @@
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="9" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
         </Style>
 
         <Style x:Key="Divider" TargetType="Border">
