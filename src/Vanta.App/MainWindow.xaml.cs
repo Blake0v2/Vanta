@@ -19,8 +19,8 @@ public partial class MainWindow : Window
 {
     private const double HomeWidth = 804;
     private const double HomeHeight = 203;
-    private const double AdvancedWidth = 860;
-    private const double AdvancedHeight = 528;
+    private const double AdvancedWidth = 900;
+    private const double AdvancedHeight = 466;
     private readonly AppSettingsStore _settingsStore = new();
     private readonly GlobalHotKeyService _hotKeyService = new();
     private readonly AutoClickService _clickService = new();
@@ -31,10 +31,13 @@ public partial class MainWindow : Window
     private bool _isLoading = true;
     private bool _hotKeyAttached;
     private bool _isCapturingHotkey;
+    private bool _isCapturingKeyboardTarget;
     private bool _isSynchronizingControls;
     private string _hotkeyBeforeCapture = "Alt + Q";
+    private string _keyboardTargetBeforeCapture = "Space";
     private ModifierKeys _capturedModifiers;
     private TextBox? _activeHotkeyBox;
+    private TextBox? _activeKeyboardTargetBox;
 
     public MainWindow()
     {
@@ -100,11 +103,18 @@ public partial class MainWindow : Window
         SelectComboItem(MouseButtonCombo, _settings.MouseButton);
         AdvancedToggleMode.IsChecked = !string.Equals(_settings.ActivationMode, "Hold", StringComparison.OrdinalIgnoreCase);
         AdvancedHoldMode.IsChecked = string.Equals(_settings.ActivationMode, "Hold", StringComparison.OrdinalIgnoreCase);
+        AdvancedMouseType.IsChecked = !string.Equals(_settings.ClickerType, "Keyboard", StringComparison.OrdinalIgnoreCase);
+        AdvancedKeyboardType.IsChecked = string.Equals(_settings.ClickerType, "Keyboard", StringComparison.OrdinalIgnoreCase);
         AdvancedMouseLeft.IsChecked = string.Equals(_settings.MouseButton, "Left", StringComparison.OrdinalIgnoreCase);
         AdvancedMouseMiddle.IsChecked = string.Equals(_settings.MouseButton, "Middle", StringComparison.OrdinalIgnoreCase);
         AdvancedMouseRight.IsChecked = string.Equals(_settings.MouseButton, "Right", StringComparison.OrdinalIgnoreCase);
+        var keyboardTarget = ParseKeyboardTarget(_settings.KeyboardKey);
+        _settings.KeyboardKey = keyboardTarget.ToString();
+        SetKeyboardTargetDisplays(KeyDisplayName(keyboardTarget, false));
 
         AdvancedClickDurationBox.Text = _settings.ClickDurationPercent.ToString(CultureInfo.InvariantCulture);
+        AdvancedDutyClickMode.IsChecked = !string.Equals(_settings.DutyCycleMode, "Hold", StringComparison.OrdinalIgnoreCase);
+        AdvancedDutyHoldMode.IsChecked = string.Equals(_settings.DutyCycleMode, "Hold", StringComparison.OrdinalIgnoreCase);
         AdvancedLimitOff.IsChecked = !_settings.LimitEnabled;
         AdvancedLimitOn.IsChecked = _settings.LimitEnabled;
         AdvancedLimitValueBox.Text = _settings.LimitValue.ToString(CultureInfo.InvariantCulture);
@@ -113,12 +123,11 @@ public partial class MainWindow : Window
         AdvancedVariationBox.Text = _settings.VariationPercent.ToString(CultureInfo.InvariantCulture);
         AdvancedVariationOff.IsChecked = !_settings.VariationEnabled;
         AdvancedVariationOn.IsChecked = _settings.VariationEnabled;
-        AdvancedDoubleClickBox.Text = _settings.DoubleClickGapMs.ToString(CultureInfo.InvariantCulture);
         AdvancedDoubleOff.IsChecked = !_settings.DoubleClickEnabled;
         AdvancedDoubleOn.IsChecked = _settings.DoubleClickEnabled;
-        AdvancedSequenceOff.IsChecked = !_settings.SequenceEnabled;
-        AdvancedSequenceOn.IsChecked = _settings.SequenceEnabled;
-        RefreshSequencePoints();
+        _settings.SequenceEnabled = false;
+        UpdateClickerTypeVisuals();
+        UpdateAdvancedSummaries();
         Topmost = _settings.AlwaysOnTop;
         UpdatePinVisual();
 
@@ -135,18 +144,19 @@ public partial class MainWindow : Window
             ? visibleRate
             : ToClicksPerSecond(visibleRate, _settings.CadencePeriod);
         _settings.ActivationMode = AdvancedHoldMode.IsChecked == true ? "Hold" : "Toggle";
+        _settings.ClickerType = AdvancedKeyboardType.IsChecked == true ? "Keyboard" : "Mouse";
         _settings.MouseButton = AdvancedMouseRight.IsChecked == true
             ? "Right"
             : AdvancedMouseMiddle.IsChecked == true ? "Middle" : "Left";
         _settings.ClickDurationPercent = ParseInt(AdvancedClickDurationBox.Text, 15, 1, 100);
+        _settings.DutyCycleMode = AdvancedDutyHoldMode.IsChecked == true ? "Hold" : "Click";
         _settings.LimitEnabled = AdvancedLimitOn.IsChecked == true;
         _settings.LimitValue = ParseInt(AdvancedLimitValueBox.Text, 1000, 1, 1_000_000);
         _settings.LimitType = AdvancedLimitTime.IsChecked == true ? "Seconds" : "Clicks";
         _settings.VariationEnabled = AdvancedVariationOn.IsChecked == true;
         _settings.VariationPercent = ParseInt(AdvancedVariationBox.Text, 10, 0, 100);
         _settings.DoubleClickEnabled = AdvancedDoubleOn.IsChecked == true;
-        _settings.DoubleClickGapMs = ParseInt(AdvancedDoubleClickBox.Text, 50, 1, 1000);
-        _settings.SequenceEnabled = AdvancedSequenceOn.IsChecked == true;
+        _settings.SequenceEnabled = false;
         _settings.AlwaysOnTop = Topmost;
     }
 
@@ -356,6 +366,7 @@ public partial class MainWindow : Window
             _isSynchronizingControls = false;
         }
 
+        UpdateAdvancedSummaries();
         ScheduleSave();
     }
 
@@ -396,7 +407,83 @@ public partial class MainWindow : Window
             _isSynchronizingControls = false;
         }
 
+        UpdateClickerTypeVisuals();
+        UpdateAdvancedSummaries();
         ScheduleSave();
+    }
+
+    private void UpdateClickerTypeVisuals()
+    {
+        var keyboard = AdvancedKeyboardType.IsChecked == true;
+        AdvancedMouseOptions.Visibility = keyboard ? Visibility.Collapsed : Visibility.Visible;
+        AdvancedKeyboardOptions.Visibility = keyboard ? Visibility.Visible : Visibility.Collapsed;
+        AdvancedClickerDescription.Text = keyboard
+            ? "Select the keyboard key the auto clicker presses."
+            : "Select the mouse button the auto clicker clicks.";
+        ClickerTypeLabel.Text = keyboard ? "Keyboard" : "Mouse";
+        MouseButtonCombo.Visibility = keyboard ? Visibility.Collapsed : Visibility.Visible;
+        KeyboardTargetBox.Visibility = keyboard ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void UpdateAdvancedSummaries()
+    {
+        if (AdvancedIntervalText is null || AdvancedLimitSuffix is null)
+        {
+            return;
+        }
+
+        var visibleValue = ParseDouble(AdvancedCadenceValueBox.Text, 10, 0.1, 60_000);
+        var interval = AdvancedDelayMode.IsChecked == true
+            ? visibleValue
+            : 1000d / Math.Clamp(ToClicksPerSecond(visibleValue, SelectedValue(AdvancedCadenceUnitCombo, "Second")), 0.000001, 1000);
+        AdvancedIntervalText.Text = $"{interval:0.##}ms interval";
+        AdvancedLimitSuffix.Text = AdvancedLimitTime.IsChecked == true ? "seconds" : "clicks";
+    }
+
+    private void EditHotkey_Click(object sender, RoutedEventArgs e) => AdvancedHotkeyInputBox.Focus();
+
+    private void EditKeyboardKey_Click(object sender, RoutedEventArgs e) => AdvancedKeyboardKeyBox.Focus();
+
+    private void KeyboardTarget_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        _activeKeyboardTargetBox = (TextBox)sender;
+        _keyboardTargetBeforeCapture = KeyDisplayName(ParseKeyboardTarget(_settings.KeyboardKey), false);
+        _isCapturingKeyboardTarget = true;
+        _activeKeyboardTargetBox.Text = "Press a key...";
+    }
+
+    private void KeyboardTarget_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        if (!_isCapturingKeyboardTarget)
+        {
+            return;
+        }
+
+        _isCapturingKeyboardTarget = false;
+        SetKeyboardTargetDisplays(_keyboardTargetBeforeCapture);
+        _activeKeyboardTargetBox = null;
+    }
+
+    private void KeyboardTarget_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        e.Handled = true;
+
+        if (key == Key.Escape)
+        {
+            _isCapturingKeyboardTarget = false;
+            SetKeyboardTargetDisplays(_keyboardTargetBeforeCapture);
+        }
+        else
+        {
+            _settings.KeyboardKey = key.ToString();
+            SetKeyboardTargetDisplays(KeyDisplayName(key, false));
+            _isCapturingKeyboardTarget = false;
+            ScheduleSave();
+        }
+
+        _activeKeyboardTargetBox = null;
+        Keyboard.ClearFocus();
     }
 
     private void HotkeyInputBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
@@ -479,31 +566,16 @@ public partial class MainWindow : Window
         e.Handled = !e.Text.All(char.IsDigit);
     }
 
-    private void AddCursorPoint_Click(object sender, RoutedEventArgs e)
-    {
-        if (!NativeMethods.GetCursorPos(out var cursor))
-        {
-            return;
-        }
-
-        _settings.SequencePoints.Add(new ScreenPoint { X = cursor.X, Y = cursor.Y });
-        RefreshSequencePoints();
-        ScheduleSave();
-    }
-
-    private void RefreshSequencePoints()
-    {
-        SequencePointsList.ItemsSource = null;
-        SequencePointsList.ItemsSource = _settings.SequencePoints;
-        SequenceEmptyText.Visibility = _settings.SequencePoints.Count == 0
-            ? Visibility.Visible
-            : Visibility.Collapsed;
-    }
-
     private void SetHotkeyDisplays(string value)
     {
         HotkeyInputBox.Text = value;
         AdvancedHotkeyInputBox.Text = value;
+    }
+
+    private void SetKeyboardTargetDisplays(string value)
+    {
+        KeyboardTargetBox.Text = value;
+        AdvancedKeyboardKeyBox.Text = value;
     }
 
     private void MainWindow_ContentRendered(object? sender, EventArgs e)
@@ -587,6 +659,9 @@ public partial class MainWindow : Window
         int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
             ? Math.Clamp(parsed, minimum, maximum)
             : fallback;
+
+    private static Key ParseKeyboardTarget(string key) =>
+        Enum.TryParse<Key>(key, true, out var parsed) ? parsed : Key.Space;
 
     private static double ToVisibleRate(double clicksPerSecond, string period) => period switch
     {

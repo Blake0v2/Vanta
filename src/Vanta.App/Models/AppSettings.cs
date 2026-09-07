@@ -9,8 +9,11 @@ public sealed class AppSettings
     public string HotKeyModifier { get; set; } = "Alt";
     public string HotKey { get; set; } = "Q";
     public string ActivationMode { get; set; } = "Toggle";
+    public string ClickerType { get; set; } = "Mouse";
     public string MouseButton { get; set; } = "Left";
+    public string KeyboardKey { get; set; } = "Space";
     public int ClickDurationPercent { get; set; } = 15;
+    public string DutyCycleMode { get; set; } = "Click";
     public bool LimitEnabled { get; set; }
     public int LimitValue { get; set; } = 1000;
     public string LimitType { get; set; } = "Clicks";
@@ -38,8 +41,11 @@ public sealed class AppSettings
             HotKeyModifier = HotKeyModifier,
             HotKey = HotKey,
             ActivationMode = ActivationMode,
+            ClickerType = ClickerType,
             MouseButton = MouseButton,
+            KeyboardKey = KeyboardKey,
             ClickDurationPercent = ClickDurationPercent,
+            DutyCycleMode = DutyCycleMode,
             LimitEnabled = LimitEnabled,
             LimitValue = LimitValue,
             LimitType = LimitType,

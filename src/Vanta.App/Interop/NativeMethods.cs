@@ -12,6 +12,8 @@ internal static class NativeMethods
     internal const uint ModNoRepeat = 0x4000;
 
     internal const uint InputMouse = 0;
+    internal const uint InputKeyboard = 1;
+    internal const uint KeyEventKeyUp = 0x0002;
     internal const uint MouseEventLeftDown = 0x0002;
     internal const uint MouseEventLeftUp = 0x0004;
     internal const uint MouseEventRightDown = 0x0008;
@@ -55,7 +57,17 @@ internal static class NativeMethods
     internal struct INPUT
     {
         public uint Type;
+        public INPUTUNION Data;
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    internal struct INPUTUNION
+    {
+        [FieldOffset(0)]
         public MOUSEINPUT MouseInput;
+
+        [FieldOffset(0)]
+        public KEYBDINPUT KeyboardInput;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -64,6 +76,16 @@ internal static class NativeMethods
         public int Dx;
         public int Dy;
         public uint MouseData;
+        public uint Flags;
+        public uint Time;
+        public IntPtr ExtraInfo;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct KEYBDINPUT
+    {
+        public ushort VirtualKey;
+        public ushort ScanCode;
         public uint Flags;
         public uint Time;
         public IntPtr ExtraInfo;

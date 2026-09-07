@@ -58,14 +58,14 @@ internal sealed class AutoClickService : IDisposable
                     sequenceIndex++;
                 }
 
-                await SendClickAsync(settings.MouseButton, settings.ClickDurationPercent, GetBaseInterval(settings), token);
+                await SendTargetInputAsync(settings, GetBaseInterval(settings), token);
                 var count = Interlocked.Increment(ref _clickCount);
                 Clicked?.Invoke(this, count);
 
-                if (settings.DoubleClickEnabled)
+                if (settings.DoubleClickEnabled && string.Equals(settings.ClickerType, "Mouse", StringComparison.OrdinalIgnoreCase))
                 {
                     await Task.Delay(Math.Clamp(settings.DoubleClickGapMs, 1, 1000), token);
-                    await SendClickAsync(settings.MouseButton, settings.ClickDurationPercent, GetBaseInterval(settings), token);
+                    await SendTargetInputAsync(settings, GetBaseInterval(settings), token);
                     count = Interlocked.Increment(ref _clickCount);
                     Clicked?.Invoke(this, count);
                 }
@@ -109,6 +109,13 @@ internal sealed class AutoClickService : IDisposable
             : 1000d / Math.Clamp(settings.CadenceValue, 0.000001, 1000);
     }
 
+    private static Task SendTargetInputAsync(AppSettings settings, double intervalMs, CancellationToken token)
+    {
+        return string.Equals(settings.ClickerType, "Keyboard", StringComparison.OrdinalIgnoreCase)
+            ? SendKeyAsync(settings.KeyboardKey, settings.ClickDurationPercent, intervalMs, token)
+            : SendClickAsync(settings.MouseButton, settings.ClickDurationPercent, intervalMs, token);
+    }
+
     private static async Task SendClickAsync(string button, int durationPercent, double intervalMs, CancellationToken token)
     {
         var (down, up) = button switch
@@ -140,13 +147,55 @@ internal sealed class AutoClickService : IDisposable
             new NativeMethods.INPUT
             {
                 Type = NativeMethods.InputMouse,
-                MouseInput = new NativeMethods.MOUSEINPUT { Flags = flags }
+                Data = new NativeMethods.INPUTUNION
+                {
+                    MouseInput = new NativeMethods.MOUSEINPUT { Flags = flags }
+                }
             }
         };
 
         if (NativeMethods.SendInput(1, inputs, Marshal.SizeOf<NativeMethods.INPUT>()) == 0)
         {
             throw new InvalidOperationException("Windows rejected the simulated mouse input.");
+        }
+    }
+
+    private static async Task SendKeyAsync(string key, int durationPercent, double intervalMs, CancellationToken token)
+    {
+        var virtualKey = (ushort)GlobalHotKeyService.GetVirtualKey(key);
+        SendKeyboardInput(virtualKey, 0);
+        try
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(GetHoldDuration(durationPercent, intervalMs)), token);
+        }
+        finally
+        {
+            // Never leave a key held if the user stops during the down interval.
+            SendKeyboardInput(virtualKey, NativeMethods.KeyEventKeyUp);
+        }
+    }
+
+    private static void SendKeyboardInput(ushort virtualKey, uint flags)
+    {
+        var inputs = new[]
+        {
+            new NativeMethods.INPUT
+            {
+                Type = NativeMethods.InputKeyboard,
+                Data = new NativeMethods.INPUTUNION
+                {
+                    KeyboardInput = new NativeMethods.KEYBDINPUT
+                    {
+                        VirtualKey = virtualKey,
+                        Flags = flags
+                    }
+                }
+            }
+        };
+
+        if (NativeMethods.SendInput(1, inputs, Marshal.SizeOf<NativeMethods.INPUT>()) == 0)
+        {
+            throw new InvalidOperationException("Windows rejected the simulated keyboard input.");
         }
     }
 
