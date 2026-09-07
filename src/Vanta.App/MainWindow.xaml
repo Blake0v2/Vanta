@@ -73,7 +73,7 @@
                             <ColumnDefinition Width="2" />
                             <ColumnDefinition Width="126" />
                             <ColumnDefinition Width="2" />
-                            <ColumnDefinition Width="112" />
+                            <ColumnDefinition Width="113" />
                         </Grid.ColumnDefinitions>
                         <TextBox x:Name="CadenceValueBox" Grid.Column="0" Text="10" PreviewTextInput="NumberOnly_PreviewTextInput" TextChanged="Setting_Changed" />
                         <Border Grid.Column="1" Style="{StaticResource Divider}" />
@@ -102,7 +102,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="127" />
                             <ColumnDefinition Width="2" />
-                            <ColumnDefinition Width="85" />
+                            <ColumnDefinition Width="86" />
                         </Grid.ColumnDefinitions>
                         <TextBox x:Name="HotkeyInputBox" Grid.Column="0" Style="{StaticResource HotkeyCapture}" Text="Alt + Q" IsReadOnly="True" IsReadOnlyCaretVisible="False" PreviewKeyDown="HotkeyInputBox_PreviewKeyDown" GotKeyboardFocus="HotkeyInputBox_GotKeyboardFocus" LostKeyboardFocus="HotkeyInputBox_LostKeyboardFocus" />
                         <Border Grid.Column="1" Style="{StaticResource Divider}" />
@@ -127,7 +127,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="99" />
                             <ColumnDefinition Width="2" />
-                            <ColumnDefinition Width="88" />
+                            <ColumnDefinition Width="89" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Mouse" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         <Border Grid.Column="1" Style="{StaticResource Divider}" />
@@ -142,54 +142,6 @@
 
             <Grid x:Name="AdvancedView" Grid.Row="1" Visibility="Collapsed" />
             <Grid x:Name="SettingsView" Grid.Row="1" Visibility="Collapsed" />
-
-            <Border Grid.RowSpan="2" Width="122" Height="2" Margin="212,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#000000" IsHitTestVisible="False" Panel.ZIndex="20" SnapsToDevicePixels="True">
-                <Border.RenderTransform>
-                    <TranslateTransform Y="2" />
-                </Border.RenderTransform>
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Visibility" Value="Collapsed" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsDropDownOpen, ElementName=CadenceUnitCombo}" Value="True">
-                                <Setter Property="Visibility" Value="Visible" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-            </Border>
-
-            <Border Grid.RowSpan="2" Width="95" Height="2" Margin="472,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#000000" IsHitTestVisible="False" Panel.ZIndex="20" SnapsToDevicePixels="True">
-                <Border.RenderTransform>
-                    <TranslateTransform Y="2" />
-                </Border.RenderTransform>
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Visibility" Value="Collapsed" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsDropDownOpen, ElementName=ActivationCombo}" Value="True">
-                                <Setter Property="Visibility" Value="Visible" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-            </Border>
-
-            <Border Grid.RowSpan="2" Width="98" Height="2" Margin="679,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#000000" IsHitTestVisible="False" Panel.ZIndex="20" SnapsToDevicePixels="True">
-                <Border.RenderTransform>
-                    <TranslateTransform Y="2" />
-                </Border.RenderTransform>
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Visibility" Value="Collapsed" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsDropDownOpen, ElementName=MouseButtonCombo}" Value="True">
-                                <Setter Property="Visibility" Value="Visible" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-            </Border>
         </Grid>
     </Border>
 </Window>

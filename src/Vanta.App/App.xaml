@@ -172,7 +172,7 @@
                                     </ControlTemplate>
                                 </ToggleButton.Template>
                             </ToggleButton>
-                            <Popup x:Name="PART_Popup" Placement="Bottom" HorizontalOffset="-1" VerticalOffset="-2" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                            <Popup x:Name="PART_Popup" Placement="Bottom" HorizontalOffset="-2" VerticalOffset="-2" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
                                 <Border Background="#09090A" BorderBrush="#62656A" BorderThickness="2,0,2,2" CornerRadius="0,0,8,8" Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="220">
                                     <ItemsPresenter />
                                 </Border>
