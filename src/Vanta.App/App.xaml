@@ -200,7 +200,7 @@
         </Style>
 
         <Style x:Key="AdvancedCard" TargetType="Border">
-            <Setter Property="Background" Value="#101012" />
+            <Setter Property="Background" Value="#000000" />
             <Setter Property="BorderBrush" Value="#323237" />
             <Setter Property="BorderThickness" Value="2" />
             <Setter Property="CornerRadius" Value="9" />
@@ -211,7 +211,7 @@
             <Setter Property="Height" Value="34" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Background" Value="#09090A" />
+            <Setter Property="Background" Value="#000000" />
             <Setter Property="BorderBrush" Value="#3A3A3F" />
             <Setter Property="BorderThickness" Value="2" />
             <Setter Property="Padding" Value="9,0" />
@@ -259,7 +259,7 @@
                                 <Setter TargetName="SegmentRoot" Property="Background" Value="#19191C" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="SegmentRoot" Property="Background" Value="#082E4F" />
+                                <Setter TargetName="SegmentRoot" Property="Background" Value="#202023" />
                                 <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
@@ -273,7 +273,7 @@
 
         <Style x:Key="AdvancedSegmentShell" TargetType="Border">
             <Setter Property="Height" Value="34" />
-            <Setter Property="Background" Value="#09090A" />
+            <Setter Property="Background" Value="#000000" />
             <Setter Property="BorderBrush" Value="#3A3A3F" />
             <Setter Property="BorderThickness" Value="2" />
             <Setter Property="CornerRadius" Value="6" />
@@ -282,7 +282,7 @@
 
         <Style x:Key="AdvancedAction" TargetType="Button">
             <Setter Property="Height" Value="34" />
-            <Setter Property="Background" Value="#101012" />
+            <Setter Property="Background" Value="#000000" />
             <Setter Property="Foreground" Value="#D7D7DA" />
             <Setter Property="BorderBrush" Value="#3A3A3F" />
             <Setter Property="BorderThickness" Value="2" />
@@ -302,7 +302,8 @@
                                 <Setter TargetName="ActionRoot" Property="BorderBrush" Value="#525258" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ActionRoot" Property="Background" Value="#082E4F" />
+                                <Setter TargetName="ActionRoot" Property="Background" Value="#202023" />
+                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.42" />

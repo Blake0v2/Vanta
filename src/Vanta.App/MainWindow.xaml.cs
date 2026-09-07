@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Vanta.Interop;
@@ -261,14 +262,44 @@ public partial class MainWindow : Window
         var targetWidth = view == AdvancedView ? AdvancedWidth : HomeWidth;
         var targetHeight = view == AdvancedView ? AdvancedHeight : HomeHeight;
 
-        if (IsLoaded)
+        if (!IsLoaded || !string.IsNullOrWhiteSpace(_capturePath))
         {
-            Left -= (targetWidth - ActualWidth) / 2d;
-            Top -= (targetHeight - ActualHeight) / 2d;
+            Width = targetWidth;
+            Height = targetHeight;
+            return;
         }
+
+        var currentWidth = ActualWidth;
+        var currentHeight = ActualHeight;
+        var currentLeft = Left;
+        var currentTop = Top;
+        var targetLeft = currentLeft - ((targetWidth - currentWidth) / 2d);
+        var targetTop = currentTop - ((targetHeight - currentHeight) / 2d);
+
+        BeginAnimation(WidthProperty, null);
+        BeginAnimation(HeightProperty, null);
+        BeginAnimation(LeftProperty, null);
+        BeginAnimation(TopProperty, null);
 
         Width = targetWidth;
         Height = targetHeight;
+        Left = targetLeft;
+        Top = targetTop;
+
+        var duration = new Duration(TimeSpan.FromMilliseconds(190));
+        BeginAnimation(WidthProperty, CreateResizeAnimation(currentWidth, targetWidth, duration));
+        BeginAnimation(HeightProperty, CreateResizeAnimation(currentHeight, targetHeight, duration));
+        BeginAnimation(LeftProperty, CreateResizeAnimation(currentLeft, targetLeft, duration));
+        BeginAnimation(TopProperty, CreateResizeAnimation(currentTop, targetTop, duration));
+    }
+
+    private static DoubleAnimation CreateResizeAnimation(double from, double to, Duration duration)
+    {
+        return new DoubleAnimation(from, to, duration)
+        {
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
+            FillBehavior = FillBehavior.Stop
+        };
     }
 
     private void PinButton_Click(object sender, RoutedEventArgs e)

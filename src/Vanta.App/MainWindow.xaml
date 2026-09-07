@@ -164,8 +164,7 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-                                <TextBlock Text="ⓘ" FontSize="14" Foreground="#8E8E94" VerticalAlignment="Center" />
-                                <TextBlock Text="Cadence" Margin="7,0,0,0" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                <TextBlock Text="Cadence" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
                             </StackPanel>
 
                             <TextBlock Grid.Row="2" Text="Rate" Foreground="#BFC0C5" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
@@ -229,8 +228,7 @@
                                 <ColumnDefinition Width="90" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="ⓘ" FontSize="14" Foreground="#8E8E94" VerticalAlignment="Center" />
-                                <TextBlock Text="Click Duration" Margin="7,0,0,0" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                <TextBlock Text="Click Duration" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
                             </StackPanel>
                             <Grid Grid.Column="1">
                                 <TextBox x:Name="AdvancedClickDurationBox" Style="{StaticResource AdvancedField}" Text="15" Padding="8,0,22,0" PreviewTextInput="NumberOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
@@ -247,8 +245,7 @@
                             </Grid.RowDefinitions>
                             <Grid Grid.Row="0">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="ⓘ" FontSize="14" Foreground="#8E8E94" VerticalAlignment="Center" />
-                                    <TextBlock Text="Limits" Margin="7,0,0,0" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    <TextBlock Text="Limits" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
                                 </StackPanel>
                                 <Border Width="86" Height="30" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
                                     <UniformGrid Columns="2">
@@ -283,8 +280,7 @@
                                 <ColumnDefinition Width="86" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="ⓘ" FontSize="14" Foreground="#8E8E94" VerticalAlignment="Center" />
-                                <TextBlock Text="Speed Variation" Margin="7,0,0,0" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                <TextBlock Text="Speed Variation" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
                             </StackPanel>
                             <Grid Grid.Column="1">
                                 <TextBox x:Name="AdvancedVariationBox" Style="{StaticResource AdvancedField}" Text="10" Padding="8,0,22,0" IsEnabled="{Binding IsChecked, ElementName=AdvancedVariationOn}" PreviewTextInput="NumberOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
@@ -308,8 +304,7 @@
                                 <ColumnDefinition Width="86" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="ⓘ" FontSize="14" Foreground="#8E8E94" VerticalAlignment="Center" />
-                                <TextBlock Text="Double Click" Margin="7,0,0,0" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                <TextBlock Text="Double Click" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
                             </StackPanel>
                             <Grid Grid.Column="1">
                                 <TextBox x:Name="AdvancedDoubleClickBox" Style="{StaticResource AdvancedField}" Text="50" Padding="8,0,18,0" IsEnabled="{Binding IsChecked, ElementName=AdvancedDoubleOn}" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
@@ -337,8 +332,7 @@
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="ⓘ" FontSize="14" Foreground="#8E8E94" VerticalAlignment="Center" />
-                                <TextBlock Text="Sequence Clicking" Margin="7,0,0,0" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                <TextBlock Text="Sequence Clicking" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
                             </StackPanel>
                             <Border Width="86" Height="30" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
@@ -349,7 +343,7 @@
                         </Grid>
                         <Border Grid.Row="1" Height="2" Background="#303034" />
                         <Button Grid.Row="3" Style="{StaticResource AdvancedAction}" Content="Add Current Cursor" Click="AddCursorPoint_Click" />
-                        <Border Grid.Row="5" Background="#09090A" BorderBrush="#29292D" BorderThickness="2" CornerRadius="7">
+                        <Border Grid.Row="5" Background="#000000" BorderBrush="#29292D" BorderThickness="2" CornerRadius="7">
                             <Grid>
                                 <ListBox x:Name="SequencePointsList" Background="Transparent" BorderThickness="0" Foreground="#D7D7DA" Padding="8" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden">
                                     <ListBox.ItemTemplate>
