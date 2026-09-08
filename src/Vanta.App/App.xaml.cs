@@ -14,8 +14,8 @@ public partial class App : Application
         if (!IsCaptureRun() && IsAnotherVantaProcessRunning())
         {
             MessageBox.Show(
-                "Vanta is already running. Close the open copy before starting another one.",
-                "Vanta",
+                "Vanta Auto Clicker is already running. Close the open copy before starting another one.",
+                "Vanta Auto Clicker",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
             Shutdown();
@@ -53,7 +53,8 @@ public partial class App : Application
 
     private static bool IsAnotherVantaProcessRunning()
     {
-        var processes = Process.GetProcessesByName("Vanta");
+        using var currentProcess = Process.GetCurrentProcess();
+        var processes = Process.GetProcessesByName(currentProcess.ProcessName);
         try
         {
             return processes.Any(process => process.Id != Environment.ProcessId);

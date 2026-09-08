@@ -131,7 +131,7 @@ public partial class MainWindow : Window
                 case "variation": AdvancedVariationOn.IsChecked = true; break;
                 case "update":
                     UpdateToastVersionText.Text = "Version 0.1.2";
-                    UpdateToastMessageText.Text = "A new Vanta update is ready to download.";
+                    UpdateToastMessageText.Text = "A new Vanta Auto Clicker update is ready to download.";
                     UpdateToast.Visibility = Visibility.Visible;
                     UpdateToast.Opacity = 1;
                     break;
@@ -294,7 +294,7 @@ public partial class MainWindow : Window
         }
         catch (Win32Exception exception)
         {
-            MessageBox.Show(this, exception.Message, "Vanta hotkey", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(this, exception.Message, "Vanta Auto Clicker hotkey", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
@@ -368,7 +368,7 @@ public partial class MainWindow : Window
         {
             SettingsUpdateButton.IsEnabled = false;
             SettingsUpdateButton.Content = "Checking...";
-            SettingsUpdateStatusText.Text = "Checking the latest Vanta release...";
+            SettingsUpdateStatusText.Text = "Checking the latest Vanta Auto Clicker release...";
         }
 
         try
@@ -432,7 +432,7 @@ public partial class MainWindow : Window
         _isDownloadingUpdate = true;
         SettingsUpdateButton.IsEnabled = false;
         UpdateToastActionButton.IsEnabled = false;
-        SettingsUpdateStatusText.Text = $"Downloading Vanta {update.LatestVersion}...";
+        SettingsUpdateStatusText.Text = $"Downloading Vanta Auto Clicker {update.LatestVersion}...";
         SettingsUpdateButton.Content = "Downloading 0%";
         UpdateToastActionButton.Content = "Downloading 0%";
 
@@ -446,10 +446,10 @@ public partial class MainWindow : Window
         try
         {
             _downloadedInstallerPath = await _updateService.DownloadInstallerAsync(update, progress);
-            SettingsUpdateStatusText.Text = $"Vanta {update.LatestVersion} downloaded and verified.";
+            SettingsUpdateStatusText.Text = $"Vanta Auto Clicker {update.LatestVersion} downloaded and verified.";
             SettingsUpdateButton.Content = "Install Update";
             UpdateToastVersionText.Text = "Download complete";
-            UpdateToastMessageText.Text = $"Vanta {update.LatestVersion} is verified and ready to install.";
+            UpdateToastMessageText.Text = $"Vanta Auto Clicker {update.LatestVersion} is verified and ready to install.";
             UpdateToastActionButton.Content = "Install Update";
             UpdateToastActionButton.IsEnabled = true;
             ShowUpdateToast(update, force: true, preserveText: true);
@@ -460,7 +460,7 @@ public partial class MainWindow : Window
             SettingsUpdateStatusText.Text = $"Update download failed: {exception.Message}";
             SettingsUpdateButton.Content = "Try Download Again";
             UpdateToastVersionText.Text = "Download failed";
-            UpdateToastMessageText.Text = "Vanta could not download or verify the update. Try again from Settings.";
+            UpdateToastMessageText.Text = "Vanta Auto Clicker could not download or verify the update. Try again from Settings.";
             UpdateToastActionButton.Content = "Try Again";
             UpdateToastActionButton.IsEnabled = true;
             ShowUpdateToast(update, force: true, preserveText: true);
@@ -485,8 +485,8 @@ public partial class MainWindow : Window
 
         var confirmation = MessageBox.Show(
             this,
-            "Vanta will close and open the verified update installer. Continue?",
-            "Install Vanta Update",
+            "Vanta Auto Clicker will close and open the verified update installer. Continue?",
+            "Install Vanta Auto Clicker Update",
             MessageBoxButton.YesNo,
             MessageBoxImage.Information);
         if (confirmation != MessageBoxResult.Yes)
@@ -508,8 +508,8 @@ public partial class MainWindow : Window
         _announcedUpdateVersion = update.LatestVersion;
         if (!preserveText)
         {
-            UpdateToastVersionText.Text = $"Vanta {update.LatestVersion} available";
-            UpdateToastMessageText.Text = "A new update is ready. Download it directly from Vanta.";
+            UpdateToastVersionText.Text = $"Vanta Auto Clicker {update.LatestVersion} available";
+            UpdateToastMessageText.Text = "A new update is ready. Download it directly from Vanta Auto Clicker.";
             UpdateToastActionButton.Content = "Download Update";
         }
 
@@ -554,8 +554,8 @@ public partial class MainWindow : Window
         {
             MessageBox.Show(
                 this,
-                "This copy of Vanta is portable or is not registered with Windows Installer.",
-                "Uninstall Vanta",
+                "This copy of Vanta Auto Clicker is portable or is not registered with Windows Installer.",
+                "Uninstall Vanta Auto Clicker",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
             return;
@@ -563,8 +563,8 @@ public partial class MainWindow : Window
 
         var confirmation = MessageBox.Show(
             this,
-            "Uninstall Vanta from this computer?",
-            "Uninstall Vanta",
+            "Uninstall Vanta Auto Clicker from this computer?",
+            "Uninstall Vanta Auto Clicker",
             MessageBoxButton.YesNo,
             MessageBoxImage.Warning);
         if (confirmation != MessageBoxResult.Yes)

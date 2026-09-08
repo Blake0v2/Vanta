@@ -16,7 +16,7 @@ internal sealed class UpdateService
     public UpdateService()
     {
         _client = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
-        _client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Vanta", CurrentVersion.ToString()));
+        _client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Vanta-Auto-Clicker", CurrentVersion.ToString()));
     }
 
     public async Task<UpdateResult> CheckAsync(CancellationToken cancellationToken = default)
@@ -58,8 +58,8 @@ internal sealed class UpdateService
         }
 
         return latest > CurrentVersion
-            ? new UpdateResult(true, latest, releaseUrl, installerUrl, installerName, checksumUrl, $"Vanta {latest} is available.")
-            : new UpdateResult(false, latest, releaseUrl, installerUrl, installerName, checksumUrl, $"You're up to date on Vanta {DisplayVersion(CurrentVersion)}.");
+            ? new UpdateResult(true, latest, releaseUrl, installerUrl, installerName, checksumUrl, $"Vanta Auto Clicker {latest} is available.")
+            : new UpdateResult(false, latest, releaseUrl, installerUrl, installerName, checksumUrl, $"You're up to date on Vanta Auto Clicker {DisplayVersion(CurrentVersion)}.");
     }
 
     public async Task<string> DownloadInstallerAsync(

@@ -1,6 +1,6 @@
-# Vanta
+# Vanta Auto Clicker
 
-Vanta is a lightweight, native Windows auto clicker with a compact dark interface. It is written in C# using WPF and uses only Windows and .NET APIs—there are no advertisements, analytics, injected DLLs, drivers, or background services.
+Vanta Auto Clicker is a lightweight, native Windows auto clicker with a compact dark interface. It is written in C# using WPF and uses only Windows and .NET APIs—there are no advertisements, analytics, injected DLLs, drivers, or background services.
 
 ## Features
 
@@ -28,7 +28,7 @@ dotnet run --project src/Vanta.App/Vanta.App.csproj
 
 Push a version tag such as `v0.1.0` to run the Windows release workflow. It builds:
 
-- `Vanta-0.1.0-x64.msi` — Windows Installer package with Start menu and uninstall integration
+- `Vanta-0.1.0-x64.msi` — guided Windows installer with install-location selection, desktop and Start menu shortcuts, launch-on-finish, and uninstall integration
 - `Vanta-0.1.0-win-x64.zip` — portable, self-contained Windows x64 build
 - `SHA256SUMS.txt` — hashes users can verify after download
 
@@ -49,7 +49,7 @@ For the lowest-friction public release:
 2. Keep the same certificate across releases so Microsoft Defender SmartScreen can accumulate reputation.
 3. Publish through GitHub Releases over HTTPS and include the generated SHA-256 checksums.
 4. Submit the first signed build to the [Microsoft Store](https://developer.microsoft.com/microsoft-store/) or Microsoft Defender submission portal if it receives a false positive.
-5. Never ship an unsigned installer as an official release.
+5. If code signing is not in the budget yet, clearly identify the installer as unsigned and publish its SHA-256 checksum so users can verify the download.
 
 The app must run at the same privilege level as the program it clicks. It intentionally requests normal user privileges; clicking an elevated administrator window would require launching Vanta as administrator too.
 

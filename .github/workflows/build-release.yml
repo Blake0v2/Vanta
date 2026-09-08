@@ -1,4 +1,4 @@
-name: Build and release Vanta
+name: Build and release Vanta Auto Clicker
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: '1'
   DOTNET_NOLOGO: '1'
-  VERSION: '0.1.2'
+  VERSION: '0.1.3'
   SIGN_RELEASE: 'false'
 
 jobs:
@@ -65,14 +65,15 @@ jobs:
           $certificatePath = Join-Path $env:RUNNER_TEMP 'vanta-signing.pfx'
           [IO.File]::WriteAllBytes($certificatePath, [Convert]::FromBase64String($env:CODE_SIGNING_PFX))
           $signTool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Recurse -Filter signtool.exe | Where-Object FullName -Match '\\x64\\' | Sort-Object FullName | Select-Object -Last 1 -ExpandProperty FullName
-          & $signTool sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /f $certificatePath /p $env:CODE_SIGNING_PASSWORD artifacts/publish/Vanta.exe
-          & $signTool sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /f $certificatePath /p $env:CODE_SIGNING_PASSWORD artifacts/publish/Vanta.dll
+          & $signTool sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /f $certificatePath /p $env:CODE_SIGNING_PASSWORD 'artifacts/publish/Vanta Auto Clicker.exe'
+          & $signTool sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /f $certificatePath /p $env:CODE_SIGNING_PASSWORD 'artifacts/publish/Vanta Auto Clicker.dll'
 
       - name: Build MSI installer
         shell: pwsh
         run: |
           dotnet tool install --tool-path .tools wix --version 5.0.2 --add-source https://api.nuget.org/v3/index.json
-          .tools/wix build installer/Product.wxs -arch x64 -d "PublishDir=$((Resolve-Path 'artifacts/publish').Path)" -d "Version=$env:VERSION" -out "artifacts/Vanta-$env:VERSION-x64.msi"
+          .tools/wix extension add WixToolset.UI.wixext/5.0.2
+          .tools/wix build installer/Product.wxs -arch x64 -ext WixToolset.UI.wixext -d "PublishDir=$((Resolve-Path 'artifacts/publish').Path)" -d "Version=$env:VERSION" -out "artifacts/Vanta-$env:VERSION-x64.msi"
 
       - name: Sign MSI installer
         if: ${{ startsWith(github.ref, 'refs/tags/v') && env.SIGN_RELEASE == 'true' }}
@@ -111,4 +112,4 @@ jobs:
             "artifacts/Vanta-$env:VERSION-win-x64.zip",
             'artifacts/SHA256SUMS.txt'
           )
-          gh release create "${{ github.ref_name }}" @releaseAssets --verify-tag --generate-notes --title "Vanta $env:VERSION"
+          gh release create "${{ github.ref_name }}" @releaseAssets --verify-tag --generate-notes --title "Vanta Auto Clicker $env:VERSION"

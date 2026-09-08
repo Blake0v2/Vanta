@@ -1,34 +1,82 @@
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <Package Name="Vanta"
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package Name="Vanta Auto Clicker"
            Manufacturer="Vanta"
            Version="$(var.Version)"
            UpgradeCode="7F2DE11A-1961-4919-9385-1DFB3A4FD04B"
            Scope="perMachine"
-           InstallerVersion="500">
+           InstallerVersion="500"
+           Language="1033">
     <SummaryInformation Description="Vanta Auto Clicker for Windows" Manufacturer="Vanta" />
-    <MajorUpgrade DowngradeErrorMessage="A newer version of Vanta is already installed." />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Vanta Auto Clicker is already installed." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
     <Icon Id="VantaIcon" SourceFile="src\Vanta.App\Assets\Vanta.ico" />
     <Property Id="ARPPRODUCTICON" Value="VantaIcon" />
     <Property Id="ARPURLINFOABOUT" Value="https://vanta-auto-clicker.netlify.app" />
     <Property Id="ARPNOREPAIR" Value="yes" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Vanta Auto Clicker" />
+
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+    <WixVariable Id="WixUIDialogBmp" Value="installer\Assets\VantaDialog.bmp" />
+    <WixVariable Id="WixUIBannerBmp" Value="installer\Assets\VantaBanner.bmp" />
+
+    <CustomAction Id="LaunchVanta"
+                  FileRef="VantaExecutable"
+                  ExeCommand=""
+                  Execute="immediate"
+                  Return="asyncNoWait"
+                  Impersonate="yes" />
+    <UI>
+      <Publish Dialog="WelcomeDlg"
+               Control="Next"
+               Event="NewDialog"
+               Value="InstallDirDlg"
+               Order="2"
+               Condition="NOT Installed" />
+      <Publish Dialog="InstallDirDlg"
+               Control="Back"
+               Event="NewDialog"
+               Value="WelcomeDlg"
+               Order="2" />
+      <Publish Dialog="ExitDialog"
+               Control="Finish"
+               Event="DoAction"
+               Value="LaunchVanta"
+               Order="1"
+               Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+    </UI>
 
     <StandardDirectory Id="ProgramFiles6432Folder">
-      <Directory Id="INSTALLFOLDER" Name="Vanta">
+      <Directory Id="INSTALLFOLDER" Name="Vanta Auto Clicker">
+        <Component Id="MainExecutableComponent" Guid="F284FB4D-F165-4375-A336-ED71795A297C">
+          <File Id="VantaExecutable"
+                Source="$(var.PublishDir)\Vanta Auto Clicker.exe"
+                KeyPath="yes"
+                Checksum="yes" />
+          <Shortcut Id="DesktopShortcut"
+                    Directory="DesktopFolder"
+                    Name="Vanta Auto Clicker"
+                    Description="Vanta Auto Clicker"
+                    Target="[INSTALLFOLDER]Vanta Auto Clicker.exe"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Icon="VantaIcon" />
+        </Component>
         <Files Include="$(var.PublishDir)\**">
+          <Exclude Files="$(var.PublishDir)\Vanta Auto Clicker.exe" />
           <Exclude Files="$(var.PublishDir)\*.pdb" />
         </Files>
       </Directory>
     </StandardDirectory>
 
     <StandardDirectory Id="ProgramMenuFolder">
-      <Directory Id="ApplicationProgramsFolder" Name="Vanta">
+      <Directory Id="ApplicationProgramsFolder" Name="Vanta Auto Clicker">
         <Component Id="ApplicationShortcut" Guid="E9F49FE9-BD18-4D56-8D7C-190F6F7E53DD">
           <Shortcut Id="StartMenuShortcut"
-                    Name="Vanta"
+                    Name="Vanta Auto Clicker"
                     Description="Vanta Auto Clicker"
-                    Target="[INSTALLFOLDER]Vanta.exe"
+                    Target="[INSTALLFOLDER]Vanta Auto Clicker.exe"
                     WorkingDirectory="INSTALLFOLDER"
                     Icon="VantaIcon" />
           <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />

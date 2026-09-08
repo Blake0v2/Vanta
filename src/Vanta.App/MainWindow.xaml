@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        Title="Vanta" Width="804" Height="203"
+        Title="Vanta Auto Clicker" Width="804" Height="203"
         ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
         WindowStyle="None" Background="{StaticResource BackgroundBrush}"
         UseLayoutRounding="True" SnapsToDevicePixels="True">
@@ -475,7 +475,7 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Vanta Settings" FontSize="18" FontWeight="SemiBold" />
+                            <TextBlock Text="Vanta Auto Clicker Settings" FontSize="18" FontWeight="SemiBold" />
                             <TextBlock Text="Manage the app, check for updates, and test your click settings." Margin="0,5,0,0" Foreground="#94969D" FontSize="12" />
                         </StackPanel>
                         <Border Grid.Column="1" Height="30" Padding="12,0" VerticalAlignment="Center" Background="#08385F" BorderBrush="#0088FF" BorderThickness="1.5" CornerRadius="3">
@@ -539,7 +539,7 @@
                             <Border Grid.Row="1" Background="#29292D" />
                             <TextBlock x:Name="SettingsUpdateStatusText" Grid.Row="2" Text="Ready to check for updates." Foreground="#94969D" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" />
                             <Button x:Name="SettingsUpdateButton" Grid.Row="3" Style="{StaticResource SettingsPrimaryAction}" Content="Check for Updates" Click="CheckForUpdates_Click" />
-                            <Button Grid.Row="5" Style="{StaticResource SettingsAction}" Content="Uninstall Vanta" Foreground="#FF8585" Click="UninstallVanta_Click" />
+                            <Button Grid.Row="5" Style="{StaticResource SettingsAction}" Content="Uninstall Vanta Auto Clicker" Foreground="#FF8585" Click="UninstallVanta_Click" />
                             <Grid Grid.Row="7">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -582,13 +582,13 @@
                         <RowDefinition Height="31" />
                     </Grid.RowDefinitions>
                     <TextBlock x:Name="UpdateToastVersionText"
-                               Text="Vanta update available"
+                               Text="Vanta Auto Clicker update available"
                                FontSize="14"
                                FontWeight="SemiBold"
                                VerticalAlignment="Top" />
                     <TextBlock x:Name="UpdateToastMessageText"
                                Grid.Row="1"
-                               Text="A new update is ready. Download it directly from Vanta."
+                               Text="A new update is ready. Download it directly from Vanta Auto Clicker."
                                Foreground="#A5A7AD"
                                FontSize="11"
                                TextWrapping="Wrap"
