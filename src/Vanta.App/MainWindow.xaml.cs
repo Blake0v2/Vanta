@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -9,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Microsoft.Win32;
 using Vanta.Interop;
 using Vanta.Models;
 using Vanta.Services;
@@ -21,9 +23,14 @@ public partial class MainWindow : Window
     private const double HomeHeight = 203;
     private const double AdvancedWidth = 900;
     private const double AdvancedHeight = 490;
+    private const double SettingsWidth = 720;
+    private const double SettingsHeight = 430;
+    private const string GitHubUrl = "https://github.com/Blake0v2/Vanta";
+    private const string WebsiteUrl = "https://github.com/Blake0v2/Vanta#readme";
     private readonly AppSettingsStore _settingsStore = new();
     private readonly GlobalHotKeyService _hotKeyService = new();
     private readonly AutoClickService _clickService = new();
+    private readonly UpdateService _updateService = new();
     private readonly DispatcherTimer _saveTimer;
     private readonly DispatcherTimer _holdTimer;
     private readonly string? _capturePath;
@@ -35,6 +42,7 @@ public partial class MainWindow : Window
     private bool _isSynchronizingControls;
     private bool _lastDelayMode;
     private int _resizeVersion;
+    private int _testClickCount;
     private string _hotkeyBeforeCapture = "Alt + Q";
     private string _keyboardTargetBeforeCapture = "Space";
     private ModifierKeys _capturedModifiers;
@@ -44,6 +52,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        SettingsVersionText.Text = $"v{FormatVersion(UpdateService.CurrentVersion)}";
 
         _capturePath = Environment.GetCommandLineArgs()
             .FirstOrDefault(argument => argument.StartsWith("--capture-ui=", StringComparison.OrdinalIgnoreCase))?
@@ -315,6 +324,87 @@ public partial class MainWindow : Window
 
     private void SettingsNav_Click(object sender, RoutedEventArgs e) => ShowView(SettingsView);
 
+    private async void CheckForUpdates_Click(object sender, RoutedEventArgs e)
+    {
+        if (SettingsUpdateButton.Tag is string releaseUrl)
+        {
+            UpdateService.OpenRelease(releaseUrl);
+            return;
+        }
+
+        SettingsUpdateButton.IsEnabled = false;
+        SettingsUpdateButton.Content = "Checking...";
+        SettingsUpdateStatusText.Text = "Checking the latest Vanta release...";
+        try
+        {
+            var result = await _updateService.CheckAsync();
+            SettingsUpdateStatusText.Text = result.Message;
+            if (result.UpdateAvailable && !string.IsNullOrWhiteSpace(result.ReleaseUrl))
+            {
+                SettingsUpdateButton.Tag = result.ReleaseUrl;
+                SettingsUpdateButton.Content = "Download Update";
+            }
+            else
+            {
+                SettingsUpdateButton.Content = "Check Again";
+            }
+        }
+        catch (Exception exception)
+        {
+            SettingsUpdateStatusText.Text = $"Update check failed: {exception.Message}";
+            SettingsUpdateButton.Content = "Try Again";
+        }
+        finally
+        {
+            SettingsUpdateButton.IsEnabled = true;
+        }
+    }
+
+    private void SettingsTestPad_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        _testClickCount++;
+        SettingsTestCountText.Text = $"{_testClickCount:N0} test {(_testClickCount == 1 ? "click" : "clicks")}";
+    }
+
+    private void ResetTestPad_Click(object sender, RoutedEventArgs e)
+    {
+        _testClickCount = 0;
+        SettingsTestCountText.Text = "0 test clicks";
+    }
+
+    private void OpenGitHub_Click(object sender, RoutedEventArgs e) => UpdateService.OpenRelease(GitHubUrl);
+
+    private void OpenWebsite_Click(object sender, RoutedEventArgs e) => UpdateService.OpenRelease(WebsiteUrl);
+
+    private void UninstallVanta_Click(object sender, RoutedEventArgs e)
+    {
+        var productCode = FindInstalledProductCode();
+        if (productCode is null)
+        {
+            MessageBox.Show(
+                this,
+                "This copy of Vanta is portable or is not registered with Windows Installer.",
+                "Uninstall Vanta",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        var confirmation = MessageBox.Show(
+            this,
+            "Uninstall Vanta from this computer?",
+            "Uninstall Vanta",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+        if (confirmation != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        Process.Start(new ProcessStartInfo("msiexec.exe", $"/x {productCode}") { UseShellExecute = true });
+        Application.Current.Shutdown();
+    }
+
     private void ShowView(UIElement view)
     {
         HomeView.Visibility = view == HomeView ? Visibility.Visible : Visibility.Collapsed;
@@ -325,8 +415,8 @@ public partial class MainWindow : Window
 
     private void ResizeForView(UIElement view)
     {
-        var targetWidth = view == AdvancedView ? AdvancedWidth : HomeWidth;
-        var targetHeight = view == AdvancedView ? AdvancedHeight : HomeHeight;
+        var targetWidth = view == AdvancedView ? AdvancedWidth : view == SettingsView ? SettingsWidth : HomeWidth;
+        var targetHeight = view == AdvancedView ? AdvancedHeight : view == SettingsView ? SettingsHeight : HomeHeight;
 
         if (!IsLoaded || !string.IsNullOrWhiteSpace(_capturePath))
         {
@@ -938,6 +1028,63 @@ public partial class MainWindow : Window
         return string.Equals(modifiers, "None", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(modifiers)
             ? displayKey
             : $"{modifiers} + {displayKey}";
+    }
+
+    private static string FormatVersion(Version version)
+    {
+        var build = Math.Max(0, version.Build);
+        return $"{version.Major}.{version.Minor}.{build}";
+    }
+
+    private static string? FindInstalledProductCode()
+    {
+        const string uninstallPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+        foreach (var hive in new[] { RegistryHive.LocalMachine, RegistryHive.CurrentUser })
+        {
+            foreach (var view in new[] { RegistryView.Registry64, RegistryView.Registry32 })
+            {
+                try
+                {
+                    using var baseKey = RegistryKey.OpenBaseKey(hive, view);
+                    using var uninstallKey = baseKey.OpenSubKey(uninstallPath);
+                    if (uninstallKey is null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var subKeyName in uninstallKey.GetSubKeyNames())
+                    {
+                        using var productKey = uninstallKey.OpenSubKey(subKeyName);
+                        var displayName = productKey?.GetValue("DisplayName") as string;
+                        if (!string.Equals(displayName, "Vanta", StringComparison.OrdinalIgnoreCase)
+                            && !string.Equals(displayName, "Vanta Auto Clicker", StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
+                        if (Guid.TryParse(subKeyName, out var productCode))
+                        {
+                            return $"{{{productCode:D}}}";
+                        }
+
+                        var uninstallString = productKey?.GetValue("UninstallString") as string;
+                        var openingBrace = uninstallString?.IndexOf('{') ?? -1;
+                        var closingBrace = uninstallString?.IndexOf('}', openingBrace + 1) ?? -1;
+                        if (openingBrace >= 0 && closingBrace > openingBrace
+                            && Guid.TryParse(uninstallString![openingBrace..(closingBrace + 1)], out productCode))
+                        {
+                            return $"{{{productCode:D}}}";
+                        }
+                    }
+                }
+                catch (Exception exception) when (exception is UnauthorizedAccessException or System.Security.SecurityException or IOException)
+                {
+                    // Try the next registry hive/view when this location is unavailable.
+                }
+            }
+        }
+
+        return null;
     }
 
     private static string KeyDisplayName(Key key, bool shift)

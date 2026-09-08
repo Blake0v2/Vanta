@@ -346,5 +346,30 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="SettingsPrimaryAction" TargetType="Button" BasedOn="{StaticResource AdvancedAction}">
+            <Setter Property="Height" Value="40" />
+            <Setter Property="Background" Value="#08385F" />
+            <Setter Property="BorderBrush" Value="#0088FF" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <Style x:Key="SettingsAction" TargetType="Button" BasedOn="{StaticResource AdvancedAction}">
+            <Setter Property="Height" Value="40" />
+        </Style>
+
+        <Style x:Key="SettingsTestPad" TargetType="Border">
+            <Setter Property="Background" Value="#0D0D0F" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Cursor" Value="Cross" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#131316" />
+                    <Setter Property="BorderBrush" Value="#777A80" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Application.Resources>
 </Application>

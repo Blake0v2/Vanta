@@ -461,7 +461,98 @@
                     </Grid>
                 </Border>
             </Grid>
-            <Grid x:Name="SettingsView" Grid.Row="1" Visibility="Collapsed" />
+            <Grid x:Name="SettingsView" Grid.Row="1" Margin="20,12" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="76" />
+                    <RowDefinition Height="10" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Style="{StaticResource AdvancedCard}">
+                    <Grid Margin="14,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Vanta Settings" FontSize="18" FontWeight="SemiBold" />
+                            <TextBlock Text="Manage the app, check for updates, and test your click settings." Margin="0,5,0,0" Foreground="#94969D" FontSize="12" />
+                        </StackPanel>
+                        <Border Grid.Column="1" Height="30" Padding="12,0" VerticalAlignment="Center" Background="#08385F" BorderBrush="#0088FF" BorderThickness="1.5" CornerRadius="3">
+                            <TextBlock x:Name="SettingsVersionText" Text="v0.1.0" Foreground="#FFFFFF" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="250" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource AdvancedCard}">
+                        <Grid Margin="14,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="38" />
+                                <RowDefinition Height="1" />
+                                <RowDefinition Height="38" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="42" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Test Pad" Style="{StaticResource AdvancedTitle}" />
+                            <Border Grid.Row="1" Background="#29292D" />
+                            <TextBlock Grid.Row="2" Text="Place your cursor here to test clicks without leaving Vanta." Style="{StaticResource AdvancedDescription}" />
+                            <Border x:Name="SettingsTestPad" Grid.Row="3" Margin="0,0,0,10" Style="{StaticResource SettingsTestPad}" PreviewMouseDown="SettingsTestPad_PreviewMouseDown">
+                                <Grid IsHitTestVisible="False">
+                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="Click to test" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                        <TextBlock Text="Left, middle, and right clicks are counted" Margin="0,5,0,0" Foreground="#8F939B" FontSize="11" HorizontalAlignment="Center" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                            <Grid Grid.Row="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="100" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="SettingsTestCountText" Text="0 test clicks" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                <Button Grid.Column="1" Style="{StaticResource SettingsAction}" Content="Reset" Click="ResetTestPad_Click" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource AdvancedCard}">
+                        <Grid Margin="14,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="38" />
+                                <RowDefinition Height="1" />
+                                <RowDefinition Height="38" />
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="8" />
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="8" />
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="App" Style="{StaticResource AdvancedTitle}" />
+                            <Border Grid.Row="1" Background="#29292D" />
+                            <TextBlock x:Name="SettingsUpdateStatusText" Grid.Row="2" Text="Ready to check for updates." Foreground="#94969D" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            <Button x:Name="SettingsUpdateButton" Grid.Row="3" Style="{StaticResource SettingsPrimaryAction}" Content="Check for Updates" Click="CheckForUpdates_Click" />
+                            <Button Grid.Row="5" Style="{StaticResource SettingsAction}" Content="Uninstall Vanta" Foreground="#FF8585" Click="UninstallVanta_Click" />
+                            <Grid Grid.Row="7">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button Style="{StaticResource SettingsAction}" Content="GitHub" Click="OpenGitHub_Click" />
+                                <Button Grid.Column="2" Style="{StaticResource SettingsAction}" Content="Website" Click="OpenWebsite_Click" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
         </Grid>
     </Border>
 </Window>
