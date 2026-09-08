@@ -154,7 +154,7 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource AdvancedCard}">
+                <Border x:Name="AdvancedCadenceCard" Grid.Row="0" Grid.Column="0" Style="{StaticResource AdvancedCard}">
                     <Grid Margin="12,8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" />
@@ -174,8 +174,8 @@
                             </Border>
                         </Grid>
                         <Border Grid.Row="1" Background="#29292D" />
-                        <TextBlock Grid.Row="2" Style="{StaticResource AdvancedDescription}" Text="Changes how fast the auto clicker clicks." />
-                        <Grid Grid.Row="3">
+                        <TextBlock x:Name="AdvancedCadenceDescription" Grid.Row="2" Style="{StaticResource AdvancedDescription}" Text="Changes how fast the auto clicker clicks." />
+                        <Grid x:Name="AdvancedRateOptions" Grid.Row="3">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="64" />
                                 <ColumnDefinition Width="6" />
@@ -198,6 +198,35 @@
                                 </ComboBox>
                             </Border>
                             <TextBlock x:Name="AdvancedIntervalText" Grid.Column="7" Text="100ms interval" Margin="7,0,0,0" Foreground="#8F939B" FontSize="10" VerticalAlignment="Center" />
+                        </Grid>
+                        <Grid x:Name="AdvancedIntervalOptions" Grid.Row="3" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="48" />
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="48" />
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="48" />
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="68" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid>
+                                <TextBox x:Name="AdvancedIntervalHoursBox" Style="{StaticResource AdvancedField}" Text="0" Padding="2,0,15,0" HorizontalContentAlignment="Center" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
+                                <TextBlock Text="h" Margin="0,0,7,0" Foreground="#8F939B" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
+                            </Grid>
+                            <Grid Grid.Column="2">
+                                <TextBox x:Name="AdvancedIntervalMinutesBox" Style="{StaticResource AdvancedField}" Text="0" Padding="2,0,15,0" HorizontalContentAlignment="Center" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
+                                <TextBlock Text="m" Margin="0,0,6,0" Foreground="#8F939B" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
+                            </Grid>
+                            <Grid Grid.Column="4">
+                                <TextBox x:Name="AdvancedIntervalSecondsBox" Style="{StaticResource AdvancedField}" Text="0" Padding="2,0,14,0" HorizontalContentAlignment="Center" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
+                                <TextBlock Text="s" Margin="0,0,8,0" Foreground="#8F939B" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
+                            </Grid>
+                            <Grid Grid.Column="6">
+                                <TextBox x:Name="AdvancedIntervalMillisecondsBox" Style="{StaticResource AdvancedField}" Text="100" Padding="2,0,20,0" HorizontalContentAlignment="Center" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
+                                <TextBlock Text="ms" Margin="0,0,6,0" Foreground="#8F939B" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
+                            </Grid>
+                            <TextBlock x:Name="AdvancedRateSummaryText" Grid.Column="7" Text="10 clicks per second" Margin="7,0,0,0" Foreground="#8F939B" FontSize="10" VerticalAlignment="Center" />
                         </Grid>
                     </Grid>
                 </Border>
@@ -222,7 +251,7 @@
                             </Border>
                         </Grid>
                         <Border Grid.Row="1" Background="#29292D" />
-                        <TextBlock Grid.Row="2" Style="{StaticResource AdvancedDescription}" Text="Press the hotkey to turn the clicker on and off." />
+                        <TextBlock x:Name="AdvancedHotkeyDescription" Grid.Row="2" Style="{StaticResource AdvancedDescription}" Text="Press the hotkey to toggle the clicker on and off." />
                         <Grid Grid.Row="3">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -279,15 +308,7 @@
                             </Border>
                         </Grid>
                         <Grid x:Name="AdvancedKeyboardOptions" Grid.Row="3" Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="42" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="8" />
-                                <ColumnDefinition Width="102" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Key" Foreground="#BFC0C5" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
-                            <TextBox x:Name="AdvancedKeyboardKeyBox" Grid.Column="1" Style="{StaticResource AdvancedField}" Text="Space" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" PreviewKeyDown="KeyboardTarget_PreviewKeyDown" GotKeyboardFocus="KeyboardTarget_GotKeyboardFocus" LostKeyboardFocus="KeyboardTarget_LostKeyboardFocus" />
-                            <Button Grid.Column="3" Style="{StaticResource AdvancedAction}" Content="Edit Key" Click="EditKeyboardKey_Click" />
+                            <TextBox x:Name="AdvancedKeyboardKeyBox" Width="136" HorizontalAlignment="Right" Style="{StaticResource AdvancedField}" Text="Space" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" HorizontalContentAlignment="Center" PreviewKeyDown="KeyboardTarget_PreviewKeyDown" GotKeyboardFocus="KeyboardTarget_GotKeyboardFocus" LostKeyboardFocus="KeyboardTarget_LostKeyboardFocus" />
                         </Grid>
                     </Grid>
                 </Border>
@@ -319,9 +340,24 @@
                                 <ColumnDefinition Width="8" />
                                 <ColumnDefinition Width="122" />
                             </Grid.ColumnDefinitions>
-                            <Grid>
-                                <TextBox x:Name="AdvancedLimitValueBox" Style="{StaticResource AdvancedField}" Text="1000" Padding="10,0,62,0" HorizontalContentAlignment="Right" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
-                                <TextBlock x:Name="AdvancedLimitSuffix" Text="clicks" Margin="0,0,12,0" Foreground="#8F939B" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
+                            <Grid x:Name="AdvancedClickLimitEditor">
+                                <TextBox x:Name="AdvancedLimitClicksValueBox" Style="{StaticResource AdvancedField}" Text="1000" Padding="10,0,62,0" HorizontalContentAlignment="Right" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
+                                <TextBlock Text="clicks" Margin="0,0,12,0" Foreground="#8F939B" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
+                            </Grid>
+                            <Grid x:Name="AdvancedTimeLimitEditor" Visibility="Collapsed">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="136" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="AdvancedLimitTimeValueBox" Style="{StaticResource AdvancedField}" Text="60" HorizontalContentAlignment="Center" Padding="3,0" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
+                                <Border Grid.Column="2" Style="{StaticResource AdvancedSegmentShell}">
+                                    <UniformGrid Columns="3">
+                                        <RadioButton x:Name="AdvancedLimitSeconds" GroupName="LimitTimeUnit" Style="{StaticResource AdvancedSegment}" Tag="Left" Content="s" IsChecked="True" Checked="AdvancedSetting_Changed" />
+                                        <RadioButton x:Name="AdvancedLimitMinutes" GroupName="LimitTimeUnit" Style="{StaticResource AdvancedSegment}" Content="m" Checked="AdvancedSetting_Changed" />
+                                        <RadioButton x:Name="AdvancedLimitHours" GroupName="LimitTimeUnit" Style="{StaticResource AdvancedSegment}" Tag="Right" Content="h" Checked="AdvancedSetting_Changed" />
+                                    </UniformGrid>
+                                </Border>
                             </Grid>
                             <Border Grid.Column="2" Style="{StaticResource AdvancedCompactSegmentShell}">
                                 <UniformGrid Columns="2">
@@ -353,8 +389,8 @@
                             </Border>
                         </Grid>
                         <Border Grid.Row="1" Background="#29292D" />
-                        <TextBlock Grid.Row="2" Style="{StaticResource AdvancedDescription}" Text="Controls how long the button is held during each click." />
-                        <Grid Grid.Row="3">
+                        <TextBlock x:Name="AdvancedDutyDescription" Grid.Row="2" Style="{StaticResource AdvancedDescription}" Text="Controls how long the button is held during each click." />
+                        <Grid x:Name="AdvancedDutyClickOptions" Grid.Row="3">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="96" />

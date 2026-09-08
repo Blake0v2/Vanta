@@ -18,6 +18,9 @@ public sealed class AppSettings
     public bool LimitEnabled { get; set; }
     public int LimitValue { get; set; } = 1000;
     public string LimitType { get; set; } = "Clicks";
+    public int? LimitClicksValue { get; set; }
+    public int? LimitTimeValue { get; set; }
+    public string LimitTimeUnit { get; set; } = "Second";
     public bool VariationEnabled { get; set; }
     public int VariationPercent { get; set; } = 10;
     public bool DoubleClickEnabled { get; set; }
@@ -51,6 +54,9 @@ public sealed class AppSettings
             LimitEnabled = LimitEnabled,
             LimitValue = LimitValue,
             LimitType = LimitType,
+            LimitClicksValue = LimitClicksValue,
+            LimitTimeValue = LimitTimeValue,
+            LimitTimeUnit = LimitTimeUnit,
             VariationEnabled = VariationEnabled,
             VariationPercent = VariationPercent,
             DoubleClickEnabled = DoubleClickEnabled,

@@ -49,6 +49,17 @@ internal sealed class AutoClickService : IDisposable
 
         try
         {
+            if (string.Equals(settings.DutyCycleMode, "Hold", StringComparison.OrdinalIgnoreCase))
+            {
+                await HoldTargetInputAsync(settings, token);
+                if (!token.IsCancellationRequested)
+                {
+                    Stop("Limit reached");
+                }
+
+                return;
+            }
+
             while (!token.IsCancellationRequested)
             {
                 if (settings.SequenceEnabled && settings.SequencePoints.Count > 0)
@@ -72,8 +83,8 @@ internal sealed class AutoClickService : IDisposable
 
                 if (settings.LimitEnabled)
                 {
-                    var reachedLimit = settings.LimitType == "Seconds"
-                        ? stopwatch.Elapsed.TotalSeconds >= settings.LimitValue
+                    var reachedLimit = !string.Equals(settings.LimitType, "Clicks", StringComparison.OrdinalIgnoreCase)
+                        ? stopwatch.Elapsed.TotalSeconds >= GetLimitSeconds(settings)
                         : count >= settings.LimitValue;
 
                     if (reachedLimit)
@@ -105,7 +116,7 @@ internal sealed class AutoClickService : IDisposable
     private static double GetBaseInterval(AppSettings settings)
     {
         return settings.IsDelayMode
-            ? Math.Clamp(settings.CadenceValue, 1, 60_000)
+            ? Math.Clamp(settings.CadenceValue, 1, 86_400_000)
             : 1000d / Math.Clamp(settings.CadenceValue, 0.000001, 1000);
     }
 
@@ -116,14 +127,44 @@ internal sealed class AutoClickService : IDisposable
             : SendClickAsync(settings.MouseButton, settings.ClickDurationPercent, intervalMs, token);
     }
 
+    private static async Task HoldTargetInputAsync(AppSettings settings, CancellationToken token)
+    {
+        var holdDuration = settings.LimitEnabled
+            && !string.Equals(settings.LimitType, "Clicks", StringComparison.OrdinalIgnoreCase)
+                ? TimeSpan.FromMilliseconds(Math.Min(GetLimitSeconds(settings) * 1000d, int.MaxValue - 1d))
+                : Timeout.InfiniteTimeSpan;
+
+        if (string.Equals(settings.ClickerType, "Keyboard", StringComparison.OrdinalIgnoreCase))
+        {
+            var virtualKey = (ushort)GlobalHotKeyService.GetVirtualKey(settings.KeyboardKey);
+            SendKeyboardInput(virtualKey, 0);
+            try
+            {
+                await Task.Delay(holdDuration, token);
+            }
+            finally
+            {
+                SendKeyboardInput(virtualKey, NativeMethods.KeyEventKeyUp);
+            }
+
+            return;
+        }
+
+        var (down, up) = MouseFlags(settings.MouseButton);
+        SendMouseInput(down);
+        try
+        {
+            await Task.Delay(holdDuration, token);
+        }
+        finally
+        {
+            SendMouseInput(up);
+        }
+    }
+
     private static async Task SendClickAsync(string button, int durationPercent, double intervalMs, CancellationToken token)
     {
-        var (down, up) = button switch
-        {
-            "Right" => (NativeMethods.MouseEventRightDown, NativeMethods.MouseEventRightUp),
-            "Middle" => (NativeMethods.MouseEventMiddleDown, NativeMethods.MouseEventMiddleUp),
-            _ => (NativeMethods.MouseEventLeftDown, NativeMethods.MouseEventLeftUp)
-        };
+        var (down, up) = MouseFlags(button);
 
         SendMouseInput(down);
         try
@@ -139,6 +180,23 @@ internal sealed class AutoClickService : IDisposable
 
     private static double GetHoldDuration(int durationPercent, double intervalMs) =>
         Math.Clamp(intervalMs * Math.Clamp(durationPercent, 1, 100) / 100d, 1, 250);
+
+    private static (uint Down, uint Up) MouseFlags(string button) => button switch
+    {
+        "Right" => (NativeMethods.MouseEventRightDown, NativeMethods.MouseEventRightUp),
+        "Middle" => (NativeMethods.MouseEventMiddleDown, NativeMethods.MouseEventMiddleUp),
+        _ => (NativeMethods.MouseEventLeftDown, NativeMethods.MouseEventLeftUp)
+    };
+
+    private static double GetLimitSeconds(AppSettings settings)
+    {
+        return settings.LimitTimeUnit switch
+        {
+            "Minute" => settings.LimitValue * 60d,
+            "Hour" => settings.LimitValue * 3600d,
+            _ => settings.LimitValue
+        };
+    }
 
     private static void SendMouseInput(uint flags)
     {

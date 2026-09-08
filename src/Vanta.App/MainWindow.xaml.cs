@@ -33,6 +33,7 @@ public partial class MainWindow : Window
     private bool _isCapturingHotkey;
     private bool _isCapturingKeyboardTarget;
     private bool _isSynchronizingControls;
+    private bool _lastDelayMode;
     private int _resizeVersion;
     private string _hotkeyBeforeCapture = "Alt + Q";
     private string _keyboardTargetBeforeCapture = "Space";
@@ -59,6 +60,7 @@ public partial class MainWindow : Window
         _holdTimer.Tick += HoldTimer_Tick;
 
         LoadSettings();
+        ApplyCaptureState();
 
         var captureView = Environment.GetCommandLineArgs()
             .FirstOrDefault(argument => argument.StartsWith("--capture-view=", StringComparison.OrdinalIgnoreCase))?
@@ -80,27 +82,68 @@ public partial class MainWindow : Window
         Closing += MainWindow_Closing;
     }
 
+    private void ApplyCaptureState()
+    {
+        if (string.IsNullOrWhiteSpace(_capturePath))
+        {
+            return;
+        }
+
+        var stateArgument = Environment.GetCommandLineArgs()
+            .FirstOrDefault(argument => argument.StartsWith("--capture-state=", StringComparison.OrdinalIgnoreCase))?
+            .Substring("--capture-state=".Length);
+        if (string.IsNullOrWhiteSpace(stateArgument))
+        {
+            return;
+        }
+
+        var states = stateArgument.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        foreach (var state in states)
+        {
+            switch (state.ToLowerInvariant())
+            {
+                case "interval": AdvancedDelayMode.IsChecked = true; break;
+                case "hold": AdvancedHoldMode.IsChecked = true; break;
+                case "keyboard": AdvancedKeyboardType.IsChecked = true; break;
+                case "time":
+                    AdvancedLimitOn.IsChecked = true;
+                    AdvancedLimitTime.IsChecked = true;
+                    break;
+                case "dutyhold": AdvancedDutyHoldMode.IsChecked = true; break;
+                case "variation": AdvancedVariationOn.IsChecked = true; break;
+            }
+        }
+
+        UpdateClickerTypeVisuals();
+        UpdateAdvancedStateVisuals();
+        UpdateAdvancedSummaries();
+    }
+
     private void LoadSettings()
     {
         _settings = _settingsStore.Load();
         var period = string.IsNullOrWhiteSpace(_settings.CadencePeriod) ? "Second" : _settings.CadencePeriod;
         var periodValue = Math.Clamp(_settings.CadencePeriodValue, 0.01, 60_000);
-        var advancedVisibleRate = _settings.CadenceDisplayValue is > 0
+        var delayMilliseconds = _settings.IsDelayMode
+            ? Math.Clamp(_settings.CadenceValue, 1, 86_400_000)
+            : 1000d / Math.Clamp(_settings.CadenceValue, 0.000001, 1000);
+        var clicksPerSecond = _settings.IsDelayMode
+            ? 1000d / delayMilliseconds
+            : Math.Clamp(_settings.CadenceValue, 0.000001, 1000);
+        var advancedVisibleRate = !_settings.IsDelayMode && _settings.CadenceDisplayValue is > 0
             ? Math.Clamp(_settings.CadenceDisplayValue.Value, 0.1, 60_000)
-            : _settings.IsDelayMode
-                ? Math.Clamp(_settings.CadenceValue, 0.1, 60_000)
-                : ToVisibleRate(_settings.CadenceValue, period) * periodValue;
-        var homeVisibleRate = _settings.IsDelayMode
-            ? advancedVisibleRate
-            : advancedVisibleRate / periodValue;
+            : ToVisibleRate(clicksPerSecond, period) * periodValue;
+        var homeVisibleRate = ToVisibleRate(clicksPerSecond, period);
 
         CadenceValueBox.Text = homeVisibleRate.ToString("0.##", CultureInfo.InvariantCulture);
         SelectComboItem(CadenceUnitCombo, period);
         AdvancedCadenceValueBox.Text = advancedVisibleRate.ToString("0.##", CultureInfo.InvariantCulture);
         AdvancedPeriodValueBox.Text = periodValue.ToString("0.##", CultureInfo.InvariantCulture);
+        SetIntervalFields(delayMilliseconds);
         SelectComboItem(AdvancedCadenceUnitCombo, period);
         AdvancedRateMode.IsChecked = !_settings.IsDelayMode;
         AdvancedDelayMode.IsChecked = _settings.IsDelayMode;
+        _lastDelayMode = _settings.IsDelayMode;
 
         var hotkeyDisplay = FormatHotkeyDisplay(_settings.HotKeyModifier, _settings.HotKey);
         HotkeyInputBox.Text = hotkeyDisplay;
@@ -123,9 +166,12 @@ public partial class MainWindow : Window
         AdvancedDutyHoldMode.IsChecked = string.Equals(_settings.DutyCycleMode, "Hold", StringComparison.OrdinalIgnoreCase);
         AdvancedLimitOff.IsChecked = !_settings.LimitEnabled;
         AdvancedLimitOn.IsChecked = _settings.LimitEnabled;
-        AdvancedLimitValueBox.Text = _settings.LimitValue.ToString(CultureInfo.InvariantCulture);
+        var storedLimitIsClicks = string.Equals(_settings.LimitType, "Clicks", StringComparison.OrdinalIgnoreCase);
+        AdvancedLimitClicksValueBox.Text = (_settings.LimitClicksValue ?? (storedLimitIsClicks ? _settings.LimitValue : 1000)).ToString(CultureInfo.InvariantCulture);
+        AdvancedLimitTimeValueBox.Text = (_settings.LimitTimeValue ?? (!storedLimitIsClicks ? _settings.LimitValue : 60)).ToString(CultureInfo.InvariantCulture);
         AdvancedLimitClicks.IsChecked = string.Equals(_settings.LimitType, "Clicks", StringComparison.OrdinalIgnoreCase);
         AdvancedLimitTime.IsChecked = !string.Equals(_settings.LimitType, "Clicks", StringComparison.OrdinalIgnoreCase);
+        SelectLimitTimeUnit(_settings.LimitTimeUnit);
         AdvancedVariationBox.Text = _settings.VariationPercent.ToString(CultureInfo.InvariantCulture);
         AdvancedVariationOff.IsChecked = !_settings.VariationEnabled;
         AdvancedVariationOn.IsChecked = _settings.VariationEnabled;
@@ -133,6 +179,7 @@ public partial class MainWindow : Window
         AdvancedDoubleOn.IsChecked = _settings.DoubleClickEnabled;
         _settings.SequenceEnabled = false;
         UpdateClickerTypeVisuals();
+        UpdateAdvancedStateVisuals();
         UpdateAdvancedSummaries();
         Topmost = _settings.AlwaysOnTop;
         UpdatePinVisual();
@@ -145,11 +192,11 @@ public partial class MainWindow : Window
         var visibleRate = ParseDouble(AdvancedCadenceValueBox.Text, 10, 0.1, 60_000);
         var periodValue = ParseDouble(AdvancedPeriodValueBox.Text, 1, 0.01, 60_000);
         _settings.CadencePeriod = SelectedValue(AdvancedCadenceUnitCombo, "Second");
-        _settings.CadenceDisplayValue = visibleRate;
         _settings.CadencePeriodValue = periodValue;
         _settings.IsDelayMode = AdvancedDelayMode.IsChecked == true;
+        _settings.CadenceDisplayValue = visibleRate;
         _settings.CadenceValue = _settings.IsDelayMode
-            ? visibleRate
+            ? GetIntervalInputMilliseconds()
             : ToClicksPerSecond(visibleRate, _settings.CadencePeriod) / periodValue;
         _settings.ActivationMode = AdvancedHoldMode.IsChecked == true ? "Hold" : "Toggle";
         _settings.ClickerType = AdvancedKeyboardType.IsChecked == true ? "Keyboard" : "Mouse";
@@ -159,8 +206,13 @@ public partial class MainWindow : Window
         _settings.ClickDurationPercent = ParseInt(AdvancedClickDurationBox.Text, 15, 1, 100);
         _settings.DutyCycleMode = AdvancedDutyHoldMode.IsChecked == true ? "Hold" : "Click";
         _settings.LimitEnabled = AdvancedLimitOn.IsChecked == true;
-        _settings.LimitValue = ParseInt(AdvancedLimitValueBox.Text, 1000, 1, 1_000_000);
-        _settings.LimitType = AdvancedLimitTime.IsChecked == true ? "Seconds" : "Clicks";
+        _settings.LimitClicksValue = ParseInt(AdvancedLimitClicksValueBox.Text, 1000, 1, 1_000_000);
+        _settings.LimitTimeValue = ParseInt(AdvancedLimitTimeValueBox.Text, 60, 1, 1_000_000);
+        _settings.LimitType = AdvancedLimitTime.IsChecked == true ? "Time" : "Clicks";
+        _settings.LimitTimeUnit = SelectedLimitTimeUnit();
+        _settings.LimitValue = AdvancedLimitTime.IsChecked == true
+            ? _settings.LimitTimeValue.Value
+            : _settings.LimitClicksValue.Value;
         _settings.VariationEnabled = AdvancedVariationOn.IsChecked == true;
         _settings.VariationPercent = ParseInt(AdvancedVariationBox.Text, 10, 0, 100);
         _settings.DoubleClickEnabled = AdvancedDoubleOn.IsChecked == true;
@@ -375,11 +427,15 @@ public partial class MainWindow : Window
         {
             if (ReferenceEquals(sender, CadenceValueBox))
             {
+                AdvancedRateMode.IsChecked = true;
+                _lastDelayMode = false;
                 AdvancedCadenceValueBox.Text = CadenceValueBox.Text;
                 AdvancedPeriodValueBox.Text = "1";
             }
             else if (ReferenceEquals(sender, CadenceUnitCombo))
             {
+                AdvancedRateMode.IsChecked = true;
+                _lastDelayMode = false;
                 SelectComboItem(AdvancedCadenceUnitCombo, SelectedValue(CadenceUnitCombo, "Second"));
                 AdvancedPeriodValueBox.Text = "1";
             }
@@ -416,18 +472,43 @@ public partial class MainWindow : Window
         _isSynchronizingControls = true;
         try
         {
-            if (ReferenceEquals(sender, AdvancedCadenceValueBox)
+            if (ReferenceEquals(sender, AdvancedRateMode) || ReferenceEquals(sender, AdvancedDelayMode))
+            {
+                var delayMode = AdvancedDelayMode.IsChecked == true;
+                if (delayMode != _lastDelayMode)
+                {
+                    if (delayMode)
+                    {
+                        SetIntervalFields(1000d / GetRateInputClicksPerSecond());
+                    }
+                    else
+                    {
+                        var clicksPerSecond = 1000d / GetIntervalInputMilliseconds();
+                        var periodValue = ParseDouble(AdvancedPeriodValueBox.Text, 1, 0.01, 60_000);
+                        var visibleRate = ToVisibleRate(clicksPerSecond, SelectedValue(AdvancedCadenceUnitCombo, "Second")) * periodValue;
+                        AdvancedCadenceValueBox.Text = visibleRate.ToString("0.##", CultureInfo.InvariantCulture);
+                    }
+
+                    _lastDelayMode = delayMode;
+                }
+
+                SyncHomeCadenceFromAdvanced();
+            }
+            else if (ReferenceEquals(sender, AdvancedCadenceValueBox)
                 || ReferenceEquals(sender, AdvancedPeriodValueBox))
+            {
+                SyncHomeCadenceFromAdvanced();
+            }
+            else if (ReferenceEquals(sender, AdvancedIntervalHoursBox)
+                || ReferenceEquals(sender, AdvancedIntervalMinutesBox)
+                || ReferenceEquals(sender, AdvancedIntervalSecondsBox)
+                || ReferenceEquals(sender, AdvancedIntervalMillisecondsBox))
             {
                 SyncHomeCadenceFromAdvanced();
             }
             else if (ReferenceEquals(sender, AdvancedCadenceUnitCombo))
             {
                 SelectComboItem(CadenceUnitCombo, SelectedValue(AdvancedCadenceUnitCombo, "Second"));
-                SyncHomeCadenceFromAdvanced();
-            }
-            else if (ReferenceEquals(sender, AdvancedRateMode) || ReferenceEquals(sender, AdvancedDelayMode))
-            {
                 SyncHomeCadenceFromAdvanced();
             }
             else if (ReferenceEquals(sender, AdvancedToggleMode) || ReferenceEquals(sender, AdvancedHoldMode))
@@ -450,17 +531,17 @@ public partial class MainWindow : Window
         }
 
         UpdateClickerTypeVisuals();
+        UpdateAdvancedStateVisuals();
         UpdateAdvancedSummaries();
         ScheduleSave();
     }
 
     private void SyncHomeCadenceFromAdvanced()
     {
-        var visibleRate = ParseDouble(AdvancedCadenceValueBox.Text, 10, 0.1, 60_000);
-        var periodValue = ParseDouble(AdvancedPeriodValueBox.Text, 1, 0.01, 60_000);
-        var homeVisibleRate = AdvancedDelayMode.IsChecked == true
-            ? visibleRate
-            : visibleRate / periodValue;
+        var clicksPerSecond = AdvancedDelayMode.IsChecked == true
+            ? 1000d / GetIntervalInputMilliseconds()
+            : GetRateInputClicksPerSecond();
+        var homeVisibleRate = ToVisibleRate(clicksPerSecond, SelectedValue(AdvancedCadenceUnitCombo, "Second"));
         CadenceValueBox.Text = homeVisibleRate.ToString("0.##", CultureInfo.InvariantCulture);
     }
 
@@ -477,23 +558,81 @@ public partial class MainWindow : Window
         KeyboardTargetBox.Visibility = keyboard ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    private void UpdateAdvancedStateVisuals()
+    {
+        var delayMode = AdvancedDelayMode.IsChecked == true;
+        AdvancedRateOptions.Visibility = delayMode ? Visibility.Collapsed : Visibility.Visible;
+        AdvancedIntervalOptions.Visibility = delayMode ? Visibility.Visible : Visibility.Collapsed;
+        AdvancedCadenceDescription.Text = delayMode
+            ? "Set the exact time between each click."
+            : "Changes how fast the auto clicker clicks.";
+
+        AdvancedHotkeyDescription.Text = AdvancedHoldMode.IsChecked == true
+            ? "Hold the hotkey to click. Release to stop."
+            : "Press the hotkey to toggle the clicker on and off.";
+
+        var timeLimit = AdvancedLimitTime.IsChecked == true;
+        AdvancedClickLimitEditor.Visibility = timeLimit ? Visibility.Collapsed : Visibility.Visible;
+        AdvancedTimeLimitEditor.Visibility = timeLimit ? Visibility.Visible : Visibility.Collapsed;
+
+        var continuousHold = AdvancedDutyHoldMode.IsChecked == true;
+        AdvancedCadenceCard.IsEnabled = !continuousHold;
+        AdvancedDutyClickOptions.Visibility = continuousHold ? Visibility.Collapsed : Visibility.Visible;
+        AdvancedDutyDescription.Text = continuousHold
+            ? "Holds the button down continuously. Click speed is disabled."
+            : "Controls how long the button is held during each click.";
+    }
+
     private void UpdateAdvancedSummaries()
     {
-        if (AdvancedIntervalText is null || AdvancedLimitSuffix is null)
+        if (AdvancedIntervalText is null || AdvancedRateSummaryText is null)
         {
             return;
         }
 
-        var visibleValue = ParseDouble(AdvancedCadenceValueBox.Text, 10, 0.1, 60_000);
-        var periodValue = ParseDouble(AdvancedPeriodValueBox.Text, 1, 0.01, 60_000);
-        var interval = AdvancedDelayMode.IsChecked == true
-            ? visibleValue
-            : 1000d / Math.Clamp(
-                ToClicksPerSecond(visibleValue, SelectedValue(AdvancedCadenceUnitCombo, "Second")) / periodValue,
-                0.000001,
-                1000);
+        var clicksPerSecond = AdvancedDelayMode.IsChecked == true
+            ? 1000d / GetIntervalInputMilliseconds()
+            : GetRateInputClicksPerSecond();
+        var interval = 1000d / Math.Clamp(clicksPerSecond, 0.000001, 1000);
         AdvancedIntervalText.Text = $"{interval:0.##}ms interval";
-        AdvancedLimitSuffix.Text = AdvancedLimitTime.IsChecked == true ? "seconds" : "clicks";
+        AdvancedRateSummaryText.Text = $"{clicksPerSecond:0.##} clicks per second";
+    }
+
+    private double GetRateInputClicksPerSecond()
+    {
+        var visibleRate = ParseDouble(AdvancedCadenceValueBox.Text, 10, 0.1, 60_000);
+        var periodValue = ParseDouble(AdvancedPeriodValueBox.Text, 1, 0.01, 60_000);
+        return Math.Clamp(
+            ToClicksPerSecond(visibleRate, SelectedValue(AdvancedCadenceUnitCombo, "Second")) / periodValue,
+            0.000001,
+            1000);
+    }
+
+    private double GetIntervalInputMilliseconds()
+    {
+        var hours = ParseInt(AdvancedIntervalHoursBox.Text, 0, 0, 23);
+        var minutes = ParseInt(AdvancedIntervalMinutesBox.Text, 0, 0, 59);
+        var seconds = ParseInt(AdvancedIntervalSecondsBox.Text, 0, 0, 59);
+        var milliseconds = ParseInt(AdvancedIntervalMillisecondsBox.Text, 0, 0, 999);
+        return Math.Clamp(
+            (hours * 3_600_000d) + (minutes * 60_000d) + (seconds * 1000d) + milliseconds,
+            1,
+            86_400_000);
+    }
+
+    private void SetIntervalFields(double totalMilliseconds)
+    {
+        var remaining = (long)Math.Round(Math.Clamp(totalMilliseconds, 1, 86_400_000));
+        var hours = remaining / 3_600_000;
+        remaining %= 3_600_000;
+        var minutes = remaining / 60_000;
+        remaining %= 60_000;
+        var seconds = remaining / 1000;
+        var milliseconds = remaining % 1000;
+        AdvancedIntervalHoursBox.Text = hours.ToString(CultureInfo.InvariantCulture);
+        AdvancedIntervalMinutesBox.Text = minutes.ToString(CultureInfo.InvariantCulture);
+        AdvancedIntervalSecondsBox.Text = seconds.ToString(CultureInfo.InvariantCulture);
+        AdvancedIntervalMillisecondsBox.Text = milliseconds.ToString(CultureInfo.InvariantCulture);
     }
 
     private void EditHotkey_Click(object sender, RoutedEventArgs e) => AdvancedHotkeyInputBox.Focus();
@@ -704,6 +843,23 @@ public partial class MainWindow : Window
         }
 
         comboBox.SelectedIndex = 0;
+    }
+
+    private string SelectedLimitTimeUnit()
+    {
+        if (AdvancedLimitHours.IsChecked == true)
+        {
+            return "Hour";
+        }
+
+        return AdvancedLimitMinutes.IsChecked == true ? "Minute" : "Second";
+    }
+
+    private void SelectLimitTimeUnit(string unit)
+    {
+        AdvancedLimitHours.IsChecked = string.Equals(unit, "Hour", StringComparison.OrdinalIgnoreCase);
+        AdvancedLimitMinutes.IsChecked = string.Equals(unit, "Minute", StringComparison.OrdinalIgnoreCase);
+        AdvancedLimitSeconds.IsChecked = AdvancedLimitHours.IsChecked != true && AdvancedLimitMinutes.IsChecked != true;
     }
 
     private static double ParseDouble(string value, double fallback, double minimum, double maximum) =>
