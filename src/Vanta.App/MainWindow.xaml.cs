@@ -123,22 +123,19 @@ public partial class MainWindow : Window
     {
         _settings = _settingsStore.Load();
         var period = string.IsNullOrWhiteSpace(_settings.CadencePeriod) ? "Second" : _settings.CadencePeriod;
-        var periodValue = Math.Clamp(_settings.CadencePeriodValue, 0.01, 60_000);
         var delayMilliseconds = _settings.IsDelayMode
             ? Math.Clamp(_settings.CadenceValue, 1, 86_400_000)
             : 1000d / Math.Clamp(_settings.CadenceValue, 0.000001, 1000);
         var clicksPerSecond = _settings.IsDelayMode
             ? 1000d / delayMilliseconds
             : Math.Clamp(_settings.CadenceValue, 0.000001, 1000);
-        var advancedVisibleRate = !_settings.IsDelayMode && _settings.CadenceDisplayValue is > 0
-            ? Math.Clamp(_settings.CadenceDisplayValue.Value, 0.1, 60_000)
-            : ToVisibleRate(clicksPerSecond, period) * periodValue;
+        var advancedVisibleRate = ToVisibleRate(clicksPerSecond, period);
         var homeVisibleRate = ToVisibleRate(clicksPerSecond, period);
 
         CadenceValueBox.Text = homeVisibleRate.ToString("0.##", CultureInfo.InvariantCulture);
         SelectComboItem(CadenceUnitCombo, period);
         AdvancedCadenceValueBox.Text = advancedVisibleRate.ToString("0.##", CultureInfo.InvariantCulture);
-        AdvancedPeriodValueBox.Text = periodValue.ToString("0.##", CultureInfo.InvariantCulture);
+        _settings.CadencePeriodValue = 1;
         SetIntervalFields(delayMilliseconds);
         SelectComboItem(AdvancedCadenceUnitCombo, period);
         AdvancedRateMode.IsChecked = !_settings.IsDelayMode;
@@ -190,14 +187,13 @@ public partial class MainWindow : Window
     private void ReadSettingsFromControls()
     {
         var visibleRate = ParseDouble(AdvancedCadenceValueBox.Text, 10, 0.1, 60_000);
-        var periodValue = ParseDouble(AdvancedPeriodValueBox.Text, 1, 0.01, 60_000);
         _settings.CadencePeriod = SelectedValue(AdvancedCadenceUnitCombo, "Second");
-        _settings.CadencePeriodValue = periodValue;
+        _settings.CadencePeriodValue = 1;
         _settings.IsDelayMode = AdvancedDelayMode.IsChecked == true;
         _settings.CadenceDisplayValue = visibleRate;
         _settings.CadenceValue = _settings.IsDelayMode
             ? GetIntervalInputMilliseconds()
-            : ToClicksPerSecond(visibleRate, _settings.CadencePeriod) / periodValue;
+            : ToClicksPerSecond(visibleRate, _settings.CadencePeriod);
         _settings.ActivationMode = AdvancedHoldMode.IsChecked == true ? "Hold" : "Toggle";
         _settings.ClickerType = AdvancedKeyboardType.IsChecked == true ? "Keyboard" : "Mouse";
         _settings.MouseButton = AdvancedMouseRight.IsChecked == true
@@ -430,14 +426,12 @@ public partial class MainWindow : Window
                 AdvancedRateMode.IsChecked = true;
                 _lastDelayMode = false;
                 AdvancedCadenceValueBox.Text = CadenceValueBox.Text;
-                AdvancedPeriodValueBox.Text = "1";
             }
             else if (ReferenceEquals(sender, CadenceUnitCombo))
             {
                 AdvancedRateMode.IsChecked = true;
                 _lastDelayMode = false;
                 SelectComboItem(AdvancedCadenceUnitCombo, SelectedValue(CadenceUnitCombo, "Second"));
-                AdvancedPeriodValueBox.Text = "1";
             }
             else if (ReferenceEquals(sender, ActivationCombo))
             {
@@ -484,8 +478,7 @@ public partial class MainWindow : Window
                     else
                     {
                         var clicksPerSecond = 1000d / GetIntervalInputMilliseconds();
-                        var periodValue = ParseDouble(AdvancedPeriodValueBox.Text, 1, 0.01, 60_000);
-                        var visibleRate = ToVisibleRate(clicksPerSecond, SelectedValue(AdvancedCadenceUnitCombo, "Second")) * periodValue;
+                        var visibleRate = ToVisibleRate(clicksPerSecond, SelectedValue(AdvancedCadenceUnitCombo, "Second"));
                         AdvancedCadenceValueBox.Text = visibleRate.ToString("0.##", CultureInfo.InvariantCulture);
                     }
 
@@ -494,8 +487,7 @@ public partial class MainWindow : Window
 
                 SyncHomeCadenceFromAdvanced();
             }
-            else if (ReferenceEquals(sender, AdvancedCadenceValueBox)
-                || ReferenceEquals(sender, AdvancedPeriodValueBox))
+            else if (ReferenceEquals(sender, AdvancedCadenceValueBox))
             {
                 SyncHomeCadenceFromAdvanced();
             }
@@ -550,9 +542,7 @@ public partial class MainWindow : Window
         var keyboard = AdvancedKeyboardType.IsChecked == true;
         AdvancedMouseOptions.Visibility = keyboard ? Visibility.Collapsed : Visibility.Visible;
         AdvancedKeyboardOptions.Visibility = keyboard ? Visibility.Visible : Visibility.Collapsed;
-        AdvancedClickerDescription.Text = keyboard
-            ? "Select the keyboard key the auto clicker presses."
-            : "Select the mouse button the auto clicker clicks.";
+        AdvancedClickerDescription.Text = "Select the mouse button or keyboard key the auto clicker clicks.";
         ClickerTypeLabel.Text = keyboard ? "Keyboard" : "Mouse";
         MouseButtonCombo.Visibility = keyboard ? Visibility.Collapsed : Visibility.Visible;
         KeyboardTargetBox.Visibility = keyboard ? Visibility.Visible : Visibility.Collapsed;
@@ -601,9 +591,8 @@ public partial class MainWindow : Window
     private double GetRateInputClicksPerSecond()
     {
         var visibleRate = ParseDouble(AdvancedCadenceValueBox.Text, 10, 0.1, 60_000);
-        var periodValue = ParseDouble(AdvancedPeriodValueBox.Text, 1, 0.01, 60_000);
         return Math.Clamp(
-            ToClicksPerSecond(visibleRate, SelectedValue(AdvancedCadenceUnitCombo, "Second")) / periodValue,
+            ToClicksPerSecond(visibleRate, SelectedValue(AdvancedCadenceUnitCombo, "Second")),
             0.000001,
             1000);
     }

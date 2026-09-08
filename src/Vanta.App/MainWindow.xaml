@@ -7,17 +7,17 @@
         WindowStyle="None" Background="{StaticResource BackgroundBrush}"
         UseLayoutRounding="True" SnapsToDevicePixels="True">
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="49" ResizeBorderThickness="0" CornerRadius="10" GlassFrameThickness="0" UseAeroCaptionButtons="False" />
+        <shell:WindowChrome CaptionHeight="49" ResizeBorderThickness="0" CornerRadius="8" GlassFrameThickness="0" UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
-    <Border BorderBrush="#85878A" BorderThickness="2" CornerRadius="10" Background="#000000">
+    <Border BorderBrush="#85878A" BorderThickness="0.5" CornerRadius="8" Background="#000000">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="49" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Background="{StaticResource HeaderBrush}" BorderBrush="#343438" BorderThickness="0,0,0,2" CornerRadius="10,10,0,0">
+            <Border Grid.Row="0" Background="{StaticResource HeaderBrush}" BorderBrush="#343438" BorderThickness="0,0,0,0.5" CornerRadius="8,8,0,0">
                 <Grid Margin="12,0,10,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -61,7 +61,7 @@
                         <Style TargetType="Border" BasedOn="{StaticResource HomeControl}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsDropDownOpen, ElementName=CadenceUnitCombo}" Value="True">
-                                    <Setter Property="CornerRadius" Value="9,9,0,9" />
+                                    <Setter Property="CornerRadius" Value="4,4,0,4" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -92,7 +92,7 @@
                         <Style TargetType="Border" BasedOn="{StaticResource HomeControl}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsDropDownOpen, ElementName=ActivationCombo}" Value="True">
-                                    <Setter Property="CornerRadius" Value="9,9,0,9" />
+                                    <Setter Property="CornerRadius" Value="4,4,0,4" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -117,7 +117,7 @@
                         <Style TargetType="Border" BasedOn="{StaticResource HomeControl}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsDropDownOpen, ElementName=MouseButtonCombo}" Value="True">
-                                    <Setter Property="CornerRadius" Value="9,9,0,9" />
+                                    <Setter Property="CornerRadius" Value="4,4,0,4" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -143,7 +143,7 @@
             <Grid x:Name="AdvancedView" Grid.Row="1" Margin="20,12" Visibility="Collapsed">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="10" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -154,22 +154,23 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
+                <!-- Click Speed -->
                 <Border x:Name="AdvancedCadenceCard" Grid.Row="0" Grid.Column="0" Style="{StaticResource AdvancedCard}">
                     <Grid Margin="12,8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" />
                             <RowDefinition Height="1" />
-                            <RowDefinition Height="26" />
+                            <RowDefinition Height="34" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Style="{StaticResource AdvancedTitle}" Text="Click Speed" />
                             </StackPanel>
-                            <Border Width="136" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AdvancedCompactSegmentShell}">
+                            <Border Width="136" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
-                                    <RadioButton x:Name="AdvancedRateMode" GroupName="CadenceMode" Style="{StaticResource AdvancedCompactSegment}" Tag="Left" Content="Rate" IsChecked="True" Checked="AdvancedSetting_Changed" />
-                                    <RadioButton x:Name="AdvancedDelayMode" GroupName="CadenceMode" Style="{StaticResource AdvancedCompactSegment}" Tag="Right" Content="Interval" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedRateMode" GroupName="CadenceMode" Style="{StaticResource AdvancedSegment}" Tag="Left" Content="Rate" IsChecked="True" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedDelayMode" GroupName="CadenceMode" Style="{StaticResource AdvancedSegment}" Tag="Right" Content="Interval" Checked="AdvancedSetting_Changed" />
                                 </UniformGrid>
                             </Border>
                         </Grid>
@@ -177,82 +178,91 @@
                         <TextBlock x:Name="AdvancedCadenceDescription" Grid.Row="2" Style="{StaticResource AdvancedDescription}" Text="Changes how fast the auto clicker clicks." />
                         <Grid x:Name="AdvancedRateOptions" Grid.Row="3">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="64" />
-                                <ColumnDefinition Width="6" />
-                                <ColumnDefinition Width="60" />
-                                <ColumnDefinition Width="5" />
-                                <ColumnDefinition Width="42" />
-                                <ColumnDefinition Width="5" />
-                                <ColumnDefinition Width="92" />
+                                <ColumnDefinition Width="242" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBox x:Name="AdvancedCadenceValueBox" Style="{StaticResource AdvancedField}" Text="10" HorizontalContentAlignment="Center" Padding="3,0" PreviewTextInput="NumberOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
-                            <TextBlock Grid.Column="2" Text="Clicks Per" Foreground="#AFAFB4" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            <TextBox x:Name="AdvancedPeriodValueBox" Grid.Column="4" Style="{StaticResource AdvancedField}" Text="1" HorizontalContentAlignment="Center" Padding="3,0" PreviewTextInput="NumberOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
-                            <Border Grid.Column="6" Style="{StaticResource AdvancedSegmentShell}">
-                                <ComboBox x:Name="AdvancedCadenceUnitCombo" Style="{StaticResource InlineCombo}" FontSize="13" SelectionChanged="AdvancedSetting_Changed">
-                                    <ComboBoxItem Content="ms" Tag="Millisecond" />
-                                    <ComboBoxItem Content="s" Tag="Second" IsSelected="True" />
-                                    <ComboBoxItem Content="m" Tag="Minute" />
-                                    <ComboBoxItem Content="h" Tag="Hour" />
-                                </ComboBox>
+                            <Border Style="{StaticResource AdvancedSegmentShell}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="64" />
+                                        <ColumnDefinition Width="1" />
+                                        <ColumnDefinition Width="76" />
+                                        <ColumnDefinition Width="1" />
+                                        <ColumnDefinition Width="100" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="AdvancedCadenceValueBox" Style="{StaticResource AdvancedInlineField}" Text="10" PreviewTextInput="NumberOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
+                                    <Border Grid.Column="1" Background="#62656A" Margin="0,5" />
+                                    <TextBlock Grid.Column="2" Text="Clicks Per" Foreground="#C5C6CA" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Border Grid.Column="3" Background="#62656A" Margin="0,5" />
+                                    <ComboBox x:Name="AdvancedCadenceUnitCombo" Grid.Column="4" Style="{StaticResource InlineCombo}" FontSize="13" SelectionChanged="AdvancedSetting_Changed">
+                                        <ComboBoxItem Content="ms" Tag="Millisecond" />
+                                        <ComboBoxItem Content="s" Tag="Second" IsSelected="True" />
+                                        <ComboBoxItem Content="m" Tag="Minute" />
+                                        <ComboBoxItem Content="h" Tag="Hour" />
+                                    </ComboBox>
+                                </Grid>
                             </Border>
-                            <TextBlock x:Name="AdvancedIntervalText" Grid.Column="7" Text="100ms interval" Margin="7,0,0,0" Foreground="#8F939B" FontSize="10" VerticalAlignment="Center" />
+                            <TextBlock x:Name="AdvancedIntervalText" Grid.Column="1" Text="100ms interval" Margin="8,0,0,0" Foreground="#8F939B" FontSize="10" VerticalAlignment="Center" />
                         </Grid>
                         <Grid x:Name="AdvancedIntervalOptions" Grid.Row="3" Visibility="Collapsed">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="48" />
-                                <ColumnDefinition Width="5" />
-                                <ColumnDefinition Width="48" />
-                                <ColumnDefinition Width="5" />
-                                <ColumnDefinition Width="48" />
-                                <ColumnDefinition Width="5" />
-                                <ColumnDefinition Width="76" />
+                                <ColumnDefinition Width="242" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Grid>
-                                <TextBox x:Name="AdvancedIntervalHoursBox" Style="{StaticResource AdvancedField}" Text="0" Padding="2,0,15,0" HorizontalContentAlignment="Center" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
-                                <TextBlock Text="h" Margin="0,0,7,0" Foreground="#8F939B" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
-                            </Grid>
-                            <Grid Grid.Column="2">
-                                <TextBox x:Name="AdvancedIntervalMinutesBox" Style="{StaticResource AdvancedField}" Text="0" Padding="2,0,15,0" HorizontalContentAlignment="Center" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
-                                <TextBlock Text="m" Margin="0,0,6,0" Foreground="#8F939B" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
-                            </Grid>
-                            <Grid Grid.Column="4">
-                                <TextBox x:Name="AdvancedIntervalSecondsBox" Style="{StaticResource AdvancedField}" Text="0" Padding="2,0,14,0" HorizontalContentAlignment="Center" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
-                                <TextBlock Text="s" Margin="0,0,8,0" Foreground="#8F939B" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
-                            </Grid>
-                            <Border Grid.Column="6" Style="{StaticResource AdvancedSegmentShell}">
-                                <Grid Margin="3,0,7,0">
+                            <Border Style="{StaticResource AdvancedSegmentShell}">
+                                <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="58" />
+                                        <ColumnDefinition Width="1" />
+                                        <ColumnDefinition Width="58" />
+                                        <ColumnDefinition Width="1" />
+                                        <ColumnDefinition Width="58" />
+                                        <ColumnDefinition Width="1" />
+                                        <ColumnDefinition Width="65" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBox x:Name="AdvancedIntervalMillisecondsBox" Text="100" Background="Transparent" BorderThickness="0" Padding="0" FontSize="14" HorizontalContentAlignment="Center" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
-                                    <TextBlock Grid.Column="1" Text="ms" Margin="4,0,0,0" Foreground="#8F939B" FontSize="10" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                    <Grid>
+                                        <TextBox x:Name="AdvancedIntervalHoursBox" Style="{StaticResource AdvancedInlineField}" Text="0" Padding="2,0,14,0" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
+                                        <TextBlock Text="h" Margin="0,0,8,0" Foreground="#8F939B" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                    </Grid>
+                                    <Border Grid.Column="1" Background="#62656A" Margin="0,5" />
+                                    <Grid Grid.Column="2">
+                                        <TextBox x:Name="AdvancedIntervalMinutesBox" Style="{StaticResource AdvancedInlineField}" Text="0" Padding="2,0,14,0" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
+                                        <TextBlock Text="m" Margin="0,0,7,0" Foreground="#8F939B" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                    </Grid>
+                                    <Border Grid.Column="3" Background="#62656A" Margin="0,5" />
+                                    <Grid Grid.Column="4">
+                                        <TextBox x:Name="AdvancedIntervalSecondsBox" Style="{StaticResource AdvancedInlineField}" Text="0" Padding="2,0,14,0" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
+                                        <TextBlock Text="s" Margin="0,0,9,0" Foreground="#8F939B" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                    </Grid>
+                                    <Border Grid.Column="5" Background="#62656A" Margin="0,5" />
+                                    <Grid Grid.Column="6">
+                                        <TextBox x:Name="AdvancedIntervalMillisecondsBox" Style="{StaticResource AdvancedInlineField}" Text="100" Padding="2,0,20,0" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
+                                        <TextBlock Text="ms" Margin="0,0,6,0" Foreground="#8F939B" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                    </Grid>
                                 </Grid>
                             </Border>
-                            <TextBlock x:Name="AdvancedRateSummaryText" Grid.Column="7" Text="10 clicks per second" Margin="7,0,0,0" Foreground="#8F939B" FontSize="10" VerticalAlignment="Center" />
+                            <TextBlock x:Name="AdvancedRateSummaryText" Grid.Column="1" Text="10 clicks per second" Margin="8,0,0,0" Foreground="#8F939B" FontSize="10" VerticalAlignment="Center" />
                         </Grid>
                     </Grid>
                 </Border>
 
+                <!-- Hotkey -->
                 <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource AdvancedCard}">
                     <Grid Margin="12,8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" />
                             <RowDefinition Height="1" />
-                            <RowDefinition Height="26" />
+                            <RowDefinition Height="34" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Style="{StaticResource AdvancedTitle}" Text="Hotkey" />
                             </StackPanel>
-                            <Border Width="130" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AdvancedCompactSegmentShell}">
+                            <Border Width="130" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
-                                    <RadioButton x:Name="AdvancedToggleMode" GroupName="ActivationMode" Style="{StaticResource AdvancedCompactSegment}" Tag="Left" Content="Toggle" IsChecked="True" Checked="AdvancedSetting_Changed" />
-                                    <RadioButton x:Name="AdvancedHoldMode" GroupName="ActivationMode" Style="{StaticResource AdvancedCompactSegment}" Tag="Right" Content="Hold" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedToggleMode" GroupName="ActivationMode" Style="{StaticResource AdvancedSegment}" Tag="Left" Content="Toggle" IsChecked="True" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedHoldMode" GroupName="ActivationMode" Style="{StaticResource AdvancedSegment}" Tag="Right" Content="Hold" Checked="AdvancedSetting_Changed" />
                                 </UniformGrid>
                             </Border>
                         </Grid>
@@ -270,71 +280,75 @@
                     </Grid>
                 </Border>
 
+                <!-- Clicker Type -->
                 <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource AdvancedCard}">
                     <Grid Margin="12,8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" />
                             <RowDefinition Height="1" />
-                            <RowDefinition Height="26" />
+                            <RowDefinition Height="34" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Style="{StaticResource AdvancedTitle}" Text="Clicker Type" />
                             </StackPanel>
-                            <Border Width="150" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AdvancedCompactSegmentShell}">
+                            <Border Width="150" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
-                                    <RadioButton x:Name="AdvancedMouseType" GroupName="ClickerType" Style="{StaticResource AdvancedCompactSegment}" Tag="Left" Content="Mouse" IsChecked="True" Checked="AdvancedSetting_Changed" />
-                                    <RadioButton x:Name="AdvancedKeyboardType" GroupName="ClickerType" Style="{StaticResource AdvancedCompactSegment}" Tag="Right" Content="Keyboard" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedMouseType" GroupName="ClickerType" Style="{StaticResource AdvancedSegment}" Tag="Left" Content="Mouse" IsChecked="True" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedKeyboardType" GroupName="ClickerType" Style="{StaticResource AdvancedSegment}" Tag="Right" Content="Keyboard" Checked="AdvancedSetting_Changed" />
                                 </UniformGrid>
                             </Border>
                         </Grid>
                         <Border Grid.Row="1" Background="#29292D" />
-                        <TextBlock x:Name="AdvancedClickerDescription" Grid.Row="2" Style="{StaticResource AdvancedDescription}" Text="Select the mouse button the auto clicker clicks." />
-                        <Grid x:Name="AdvancedMouseOptions" Grid.Row="3">
+                        <TextBlock x:Name="AdvancedClickerDescription" Grid.Row="2" Style="{StaticResource AdvancedDescription}" Text="Select the mouse button or keyboard key the auto clicker clicks." />
+                        <Grid Grid.Row="3">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="82" />
-                                <ColumnDefinition Width="86" />
+                                <ColumnDefinition Width="82" />
                                 <ColumnDefinition Width="10" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Double Click" Foreground="#BFC0C5" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
-                            <Border Grid.Column="1" Width="82" HorizontalAlignment="Left" Style="{StaticResource AdvancedCompactSegmentShell}">
+                            <Border Grid.Column="1" Style="{StaticResource AdvancedSegmentShell}" IsEnabled="{Binding IsChecked, ElementName=AdvancedMouseType}">
                                 <UniformGrid Columns="2">
-                                    <RadioButton x:Name="AdvancedDoubleOff" GroupName="DoubleClickEnabled" Style="{StaticResource AdvancedCompactSegment}" Tag="Left" Content="Off" IsChecked="True" Checked="AdvancedSetting_Changed" />
-                                    <RadioButton x:Name="AdvancedDoubleOn" GroupName="DoubleClickEnabled" Style="{StaticResource AdvancedCompactSegment}" Tag="Right" Content="On" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedDoubleOff" GroupName="DoubleClickEnabled" Style="{StaticResource AdvancedSegment}" Tag="Left" Content="Off" IsChecked="True" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedDoubleOn" GroupName="DoubleClickEnabled" Style="{StaticResource AdvancedSegment}" Tag="Right" Content="On" Checked="AdvancedSetting_Changed" />
                                 </UniformGrid>
                             </Border>
-                            <Border Grid.Column="3" Width="210" HorizontalAlignment="Right" Style="{StaticResource AdvancedCompactSegmentShell}">
-                                <UniformGrid Columns="3">
-                                    <RadioButton x:Name="AdvancedMouseLeft" GroupName="MouseButton" Style="{StaticResource AdvancedCompactSegment}" Tag="Left" Content="Left" IsChecked="True" Checked="AdvancedSetting_Changed" />
-                                    <RadioButton x:Name="AdvancedMouseMiddle" GroupName="MouseButton" Style="{StaticResource AdvancedCompactSegment}" Content="Middle" Checked="AdvancedSetting_Changed" />
-                                    <RadioButton x:Name="AdvancedMouseRight" GroupName="MouseButton" Style="{StaticResource AdvancedCompactSegment}" Tag="Right" Content="Right" Checked="AdvancedSetting_Changed" />
-                                </UniformGrid>
-                            </Border>
-                        </Grid>
-                        <Grid x:Name="AdvancedKeyboardOptions" Grid.Row="3" Visibility="Collapsed">
-                            <TextBox x:Name="AdvancedKeyboardKeyBox" Width="136" HorizontalAlignment="Right" Style="{StaticResource AdvancedField}" Text="Space" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" HorizontalContentAlignment="Center" PreviewKeyDown="KeyboardTarget_PreviewKeyDown" GotKeyboardFocus="KeyboardTarget_GotKeyboardFocus" LostKeyboardFocus="KeyboardTarget_LostKeyboardFocus" />
+                            <Grid x:Name="AdvancedMouseOptions" Grid.Column="3">
+                                <Border Width="210" HorizontalAlignment="Right" Style="{StaticResource AdvancedSegmentShell}">
+                                    <UniformGrid Columns="3">
+                                        <RadioButton x:Name="AdvancedMouseLeft" GroupName="MouseButton" Style="{StaticResource AdvancedSegment}" Tag="Left" Content="Left" IsChecked="True" Checked="AdvancedSetting_Changed" />
+                                        <RadioButton x:Name="AdvancedMouseMiddle" GroupName="MouseButton" Style="{StaticResource AdvancedSegment}" Content="Middle" Checked="AdvancedSetting_Changed" />
+                                        <RadioButton x:Name="AdvancedMouseRight" GroupName="MouseButton" Style="{StaticResource AdvancedSegment}" Tag="Right" Content="Right" Checked="AdvancedSetting_Changed" />
+                                    </UniformGrid>
+                                </Border>
+                            </Grid>
+                            <Grid x:Name="AdvancedKeyboardOptions" Grid.Column="3" Visibility="Collapsed">
+                                <TextBox x:Name="AdvancedKeyboardKeyBox" Width="136" HorizontalAlignment="Right" Style="{StaticResource AdvancedField}" Text="Space" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" HorizontalContentAlignment="Center" PreviewKeyDown="KeyboardTarget_PreviewKeyDown" GotKeyboardFocus="KeyboardTarget_GotKeyboardFocus" LostKeyboardFocus="KeyboardTarget_LostKeyboardFocus" />
+                            </Grid>
                         </Grid>
                     </Grid>
                 </Border>
 
+                <!-- Limits -->
                 <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource AdvancedCard}">
                     <Grid Margin="12,8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" />
                             <RowDefinition Height="1" />
-                            <RowDefinition Height="26" />
+                            <RowDefinition Height="34" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Style="{StaticResource AdvancedTitle}" Text="Limits" />
                             </StackPanel>
-                            <Border Width="82" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AdvancedCompactSegmentShell}">
+                            <Border Width="82" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
-                                    <RadioButton x:Name="AdvancedLimitOff" GroupName="LimitEnabled" Style="{StaticResource AdvancedCompactSegment}" Tag="Left" Content="Off" IsChecked="True" Checked="AdvancedSetting_Changed" />
-                                    <RadioButton x:Name="AdvancedLimitOn" GroupName="LimitEnabled" Style="{StaticResource AdvancedCompactSegment}" Tag="Right" Content="On" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedLimitOff" GroupName="LimitEnabled" Style="{StaticResource AdvancedSegment}" Tag="Left" Content="Off" IsChecked="True" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedLimitOn" GroupName="LimitEnabled" Style="{StaticResource AdvancedSegment}" Tag="Right" Content="On" Checked="AdvancedSetting_Changed" />
                                 </UniformGrid>
                             </Border>
                         </Grid>
@@ -365,32 +379,33 @@
                                     </UniformGrid>
                                 </Border>
                             </Grid>
-                            <Border Grid.Column="2" Style="{StaticResource AdvancedCompactSegmentShell}">
+                            <Border Grid.Column="2" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
-                                    <RadioButton x:Name="AdvancedLimitClicks" GroupName="LimitType" Style="{StaticResource AdvancedCompactSegment}" Tag="Left" Content="Click" IsChecked="True" Checked="AdvancedSetting_Changed" />
-                                    <RadioButton x:Name="AdvancedLimitTime" GroupName="LimitType" Style="{StaticResource AdvancedCompactSegment}" Tag="Right" Content="Time" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedLimitClicks" GroupName="LimitType" Style="{StaticResource AdvancedSegment}" Tag="Left" Content="Click" IsChecked="True" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedLimitTime" GroupName="LimitType" Style="{StaticResource AdvancedSegment}" Tag="Right" Content="Time" Checked="AdvancedSetting_Changed" />
                                 </UniformGrid>
                             </Border>
                         </Grid>
                     </Grid>
                 </Border>
 
+                <!-- Duty Cycle -->
                 <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource AdvancedCard}">
                     <Grid Margin="12,8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" />
                             <RowDefinition Height="1" />
-                            <RowDefinition Height="26" />
+                            <RowDefinition Height="34" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Style="{StaticResource AdvancedTitle}" Text="Duty Cycle" />
                             </StackPanel>
-                            <Border Width="116" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AdvancedCompactSegmentShell}">
+                            <Border Width="116" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
-                                    <RadioButton x:Name="AdvancedDutyClickMode" GroupName="DutyCycleMode" Style="{StaticResource AdvancedCompactSegment}" Tag="Left" Content="Click" IsChecked="True" Checked="AdvancedSetting_Changed" />
-                                    <RadioButton x:Name="AdvancedDutyHoldMode" GroupName="DutyCycleMode" Style="{StaticResource AdvancedCompactSegment}" Tag="Right" Content="Hold" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedDutyClickMode" GroupName="DutyCycleMode" Style="{StaticResource AdvancedSegment}" Tag="Left" Content="Click" IsChecked="True" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedDutyHoldMode" GroupName="DutyCycleMode" Style="{StaticResource AdvancedSegment}" Tag="Right" Content="Hold" Checked="AdvancedSetting_Changed" />
                                 </UniformGrid>
                             </Border>
                         </Grid>
@@ -411,22 +426,23 @@
                     </Grid>
                 </Border>
 
+                <!-- Speed Randomization -->
                 <Border Grid.Row="4" Grid.Column="2" Style="{StaticResource AdvancedCard}">
                     <Grid Margin="12,8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" />
                             <RowDefinition Height="1" />
-                            <RowDefinition Height="26" />
+                            <RowDefinition Height="34" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Style="{StaticResource AdvancedTitle}" Text="Speed Randomization" />
                             </StackPanel>
-                            <Border Width="82" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AdvancedCompactSegmentShell}">
+                            <Border Width="82" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AdvancedSegmentShell}">
                                 <UniformGrid Columns="2">
-                                    <RadioButton x:Name="AdvancedVariationOff" GroupName="VariationEnabled" Style="{StaticResource AdvancedCompactSegment}" Tag="Left" Content="Off" IsChecked="True" Checked="AdvancedSetting_Changed" />
-                                    <RadioButton x:Name="AdvancedVariationOn" GroupName="VariationEnabled" Style="{StaticResource AdvancedCompactSegment}" Tag="Right" Content="On" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedVariationOff" GroupName="VariationEnabled" Style="{StaticResource AdvancedSegment}" Tag="Left" Content="Off" IsChecked="True" Checked="AdvancedSetting_Changed" />
+                                    <RadioButton x:Name="AdvancedVariationOn" GroupName="VariationEnabled" Style="{StaticResource AdvancedSegment}" Tag="Right" Content="On" Checked="AdvancedSetting_Changed" />
                                 </UniformGrid>
                             </Border>
                         </Grid>
