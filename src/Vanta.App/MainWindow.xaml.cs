@@ -33,6 +33,7 @@ public partial class MainWindow : Window
     private readonly UpdateService _updateService = new();
     private readonly DispatcherTimer _saveTimer;
     private readonly DispatcherTimer _holdTimer;
+    private readonly DispatcherTimer _updateTimer;
     private readonly string? _capturePath;
     private AppSettings _settings = new();
     private bool _isLoading = true;
@@ -43,6 +44,11 @@ public partial class MainWindow : Window
     private bool _lastDelayMode;
     private int _resizeVersion;
     private int _testClickCount;
+    private bool _isCheckingForUpdates;
+    private bool _isDownloadingUpdate;
+    private UpdateResult? _availableUpdate;
+    private string? _downloadedInstallerPath;
+    private Version? _announcedUpdateVersion;
     private string _hotkeyBeforeCapture = "Alt + Q";
     private string _keyboardTargetBeforeCapture = "Space";
     private ModifierKeys _capturedModifiers;
@@ -67,6 +73,9 @@ public partial class MainWindow : Window
 
         _holdTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(18) };
         _holdTimer.Tick += HoldTimer_Tick;
+
+        _updateTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(30) };
+        _updateTimer.Tick += async (_, _) => await CheckForUpdatesAsync(manual: false);
 
         LoadSettings();
         ApplyCaptureState();
@@ -120,6 +129,12 @@ public partial class MainWindow : Window
                     break;
                 case "dutyhold": AdvancedDutyHoldMode.IsChecked = true; break;
                 case "variation": AdvancedVariationOn.IsChecked = true; break;
+                case "update":
+                    UpdateToastVersionText.Text = "Version 0.1.2";
+                    UpdateToastMessageText.Text = "A new Vanta update is ready to download.";
+                    UpdateToast.Visibility = Visibility.Visible;
+                    UpdateToast.Opacity = 1;
+                    break;
             }
         }
 
@@ -326,38 +341,194 @@ public partial class MainWindow : Window
 
     private async void CheckForUpdates_Click(object sender, RoutedEventArgs e)
     {
-        if (SettingsUpdateButton.Tag is string releaseUrl)
+        if (!string.IsNullOrWhiteSpace(_downloadedInstallerPath) && File.Exists(_downloadedInstallerPath))
         {
-            UpdateService.OpenRelease(releaseUrl);
+            InstallDownloadedUpdate();
             return;
         }
 
-        SettingsUpdateButton.IsEnabled = false;
-        SettingsUpdateButton.Content = "Checking...";
-        SettingsUpdateStatusText.Text = "Checking the latest Vanta release...";
+        if (_availableUpdate is not null)
+        {
+            await DownloadUpdateAsync(_availableUpdate);
+            return;
+        }
+
+        await CheckForUpdatesAsync(manual: true);
+    }
+
+    private async Task CheckForUpdatesAsync(bool manual)
+    {
+        if (_isCheckingForUpdates || _isDownloadingUpdate)
+        {
+            return;
+        }
+
+        _isCheckingForUpdates = true;
+        if (manual)
+        {
+            SettingsUpdateButton.IsEnabled = false;
+            SettingsUpdateButton.Content = "Checking...";
+            SettingsUpdateStatusText.Text = "Checking the latest Vanta release...";
+        }
+
         try
         {
             var result = await _updateService.CheckAsync();
-            SettingsUpdateStatusText.Text = result.Message;
-            if (result.UpdateAvailable && !string.IsNullOrWhiteSpace(result.ReleaseUrl))
+            if (result.UpdateAvailable)
             {
-                SettingsUpdateButton.Tag = result.ReleaseUrl;
+                _availableUpdate = result;
+                SettingsUpdateStatusText.Text = result.Message;
                 SettingsUpdateButton.Content = "Download Update";
+                ShowUpdateToast(result);
+                if (manual)
+                {
+                    await DownloadUpdateAsync(result);
+                }
             }
-            else
+            else if (manual)
             {
+                SettingsUpdateStatusText.Text = result.Message;
                 SettingsUpdateButton.Content = "Check Again";
             }
         }
         catch (Exception exception)
         {
-            SettingsUpdateStatusText.Text = $"Update check failed: {exception.Message}";
-            SettingsUpdateButton.Content = "Try Again";
+            if (manual)
+            {
+                SettingsUpdateStatusText.Text = $"Update check failed: {exception.Message}";
+                SettingsUpdateButton.Content = "Try Again";
+            }
         }
         finally
         {
+            _isCheckingForUpdates = false;
             SettingsUpdateButton.IsEnabled = true;
         }
+    }
+
+    private async void UpdateToastAction_Click(object sender, RoutedEventArgs e)
+    {
+        if (!string.IsNullOrWhiteSpace(_downloadedInstallerPath) && File.Exists(_downloadedInstallerPath))
+        {
+            InstallDownloadedUpdate();
+            return;
+        }
+
+        if (_availableUpdate is not null)
+        {
+            await DownloadUpdateAsync(_availableUpdate);
+        }
+    }
+
+    private void UpdateToastDismiss_Click(object sender, RoutedEventArgs e) => HideUpdateToast();
+
+    private async Task DownloadUpdateAsync(UpdateResult update)
+    {
+        if (_isDownloadingUpdate)
+        {
+            return;
+        }
+
+        _isDownloadingUpdate = true;
+        SettingsUpdateButton.IsEnabled = false;
+        UpdateToastActionButton.IsEnabled = false;
+        SettingsUpdateStatusText.Text = $"Downloading Vanta {update.LatestVersion}...";
+        SettingsUpdateButton.Content = "Downloading 0%";
+        UpdateToastActionButton.Content = "Downloading 0%";
+
+        var progress = new Progress<double>(value =>
+        {
+            var percentage = Math.Clamp((int)Math.Round(value * 100), 0, 100);
+            SettingsUpdateButton.Content = $"Downloading {percentage}%";
+            UpdateToastActionButton.Content = $"Downloading {percentage}%";
+        });
+
+        try
+        {
+            _downloadedInstallerPath = await _updateService.DownloadInstallerAsync(update, progress);
+            SettingsUpdateStatusText.Text = $"Vanta {update.LatestVersion} downloaded and verified.";
+            SettingsUpdateButton.Content = "Install Update";
+            UpdateToastVersionText.Text = "Download complete";
+            UpdateToastMessageText.Text = $"Vanta {update.LatestVersion} is verified and ready to install.";
+            UpdateToastActionButton.Content = "Install Update";
+            UpdateToastActionButton.IsEnabled = true;
+            ShowUpdateToast(update, force: true, preserveText: true);
+        }
+        catch (Exception exception)
+        {
+            _downloadedInstallerPath = null;
+            SettingsUpdateStatusText.Text = $"Update download failed: {exception.Message}";
+            SettingsUpdateButton.Content = "Try Download Again";
+            UpdateToastVersionText.Text = "Download failed";
+            UpdateToastMessageText.Text = "Vanta could not download or verify the update. Try again from Settings.";
+            UpdateToastActionButton.Content = "Try Again";
+            UpdateToastActionButton.IsEnabled = true;
+            ShowUpdateToast(update, force: true, preserveText: true);
+        }
+        finally
+        {
+            _isDownloadingUpdate = false;
+            SettingsUpdateButton.IsEnabled = true;
+            UpdateToastActionButton.IsEnabled = true;
+        }
+    }
+
+    private void InstallDownloadedUpdate()
+    {
+        if (string.IsNullOrWhiteSpace(_downloadedInstallerPath) || !File.Exists(_downloadedInstallerPath))
+        {
+            _downloadedInstallerPath = null;
+            SettingsUpdateButton.Content = "Check for Updates";
+            SettingsUpdateStatusText.Text = "The downloaded installer could not be found. Please download it again.";
+            return;
+        }
+
+        var confirmation = MessageBox.Show(
+            this,
+            "Vanta will close and open the verified update installer. Continue?",
+            "Install Vanta Update",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Information);
+        if (confirmation != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        UpdateService.OpenInstaller(_downloadedInstallerPath);
+        Application.Current.Shutdown();
+    }
+
+    private void ShowUpdateToast(UpdateResult update, bool force = false, bool preserveText = false)
+    {
+        if (!force && _announcedUpdateVersion == update.LatestVersion)
+        {
+            return;
+        }
+
+        _announcedUpdateVersion = update.LatestVersion;
+        if (!preserveText)
+        {
+            UpdateToastVersionText.Text = $"Vanta {update.LatestVersion} available";
+            UpdateToastMessageText.Text = "A new update is ready. Download it directly from Vanta.";
+            UpdateToastActionButton.Content = "Download Update";
+        }
+
+        UpdateToast.Visibility = Visibility.Visible;
+        UpdateToast.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(180)));
+        if (UpdateToast.RenderTransform is TranslateTransform transform)
+        {
+            transform.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(18, 0, TimeSpan.FromMilliseconds(220))
+            {
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            });
+        }
+    }
+
+    private void HideUpdateToast()
+    {
+        var animation = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(140));
+        animation.Completed += (_, _) => UpdateToast.Visibility = Visibility.Collapsed;
+        UpdateToast.BeginAnimation(OpacityProperty, animation);
     }
 
     private void SettingsTestPad_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -856,6 +1027,8 @@ public partial class MainWindow : Window
     {
         if (string.IsNullOrWhiteSpace(_capturePath))
         {
+            _updateTimer.Start();
+            _ = CheckForUpdatesAsync(manual: false);
             return;
         }
 
@@ -891,6 +1064,7 @@ public partial class MainWindow : Window
     {
         _holdTimer.Stop();
         _saveTimer.Stop();
+        _updateTimer.Stop();
         if (string.IsNullOrWhiteSpace(_capturePath))
         {
             SaveSettings();

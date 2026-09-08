@@ -553,6 +553,67 @@
                     </Border>
                 </Grid>
             </Grid>
+
+            <Border x:Name="UpdateToast"
+                    Grid.RowSpan="2"
+                    Width="310"
+                    Height="120"
+                    Margin="0,58,14,0"
+                    Padding="13,11"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Panel.ZIndex="100"
+                    Background="#101012"
+                    BorderBrush="#62656A"
+                    BorderThickness="1.5"
+                    CornerRadius="7"
+                    Opacity="0"
+                    Visibility="Collapsed">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="18" ShadowDepth="5" Opacity="0.65" Color="#000000" />
+                </Border.Effect>
+                <Border.RenderTransform>
+                    <TranslateTransform />
+                </Border.RenderTransform>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="22" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="31" />
+                    </Grid.RowDefinitions>
+                    <TextBlock x:Name="UpdateToastVersionText"
+                               Text="Vanta update available"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Top" />
+                    <TextBlock x:Name="UpdateToastMessageText"
+                               Grid.Row="1"
+                               Text="A new update is ready. Download it directly from Vanta."
+                               Foreground="#A5A7AD"
+                               FontSize="11"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center" />
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="72" />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="UpdateToastActionButton"
+                                Height="31"
+                                Style="{StaticResource SettingsPrimaryAction}"
+                                Content="Download Update"
+                                FontSize="12"
+                                Click="UpdateToastAction_Click" />
+                        <Button Grid.Column="2"
+                                Height="31"
+                                Style="{StaticResource SettingsAction}"
+                                Content="Later"
+                                FontSize="12"
+                                Click="UpdateToastDismiss_Click" />
+                    </Grid>
+                </Grid>
+            </Border>
         </Grid>
     </Border>
 </Window>
