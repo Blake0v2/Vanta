@@ -10,14 +10,14 @@
         <shell:WindowChrome CaptionHeight="49" ResizeBorderThickness="0" CornerRadius="8" GlassFrameThickness="0" UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
-    <Border BorderBrush="#85878A" BorderThickness="0.5" CornerRadius="8" Background="#000000">
+    <Border BorderBrush="#85878A" BorderThickness="1" CornerRadius="8" Background="#000000">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="49" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Background="{StaticResource HeaderBrush}" BorderBrush="#343438" BorderThickness="0,0,0,0.5" CornerRadius="8,8,0,0">
+            <Border Grid.Row="0" Background="{StaticResource HeaderBrush}" BorderBrush="#343438" BorderThickness="0,0,0,1" CornerRadius="8,8,0,0">
                 <Grid Margin="12,0,10,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />

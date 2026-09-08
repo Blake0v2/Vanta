@@ -173,7 +173,7 @@
                                 </ToggleButton.Template>
                             </ToggleButton>
                             <Popup x:Name="PART_Popup" Placement="Bottom" HorizontalOffset="-2" VerticalOffset="0" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
-                                <Border Background="#0D0D0F" BorderBrush="#62656A" BorderThickness="0.5,0,0.5,0.5" CornerRadius="0,0,4,4" Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="220">
+                                <Border Background="#0D0D0F" BorderBrush="#62656A" BorderThickness="1,0,1,1" CornerRadius="0,0,4,4" Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="220">
                                     <ItemsPresenter />
                                 </Border>
                             </Popup>
@@ -187,7 +187,7 @@
             <Setter Property="Height" Value="50" />
             <Setter Property="Background" Value="#09090A" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-            <Setter Property="BorderThickness" Value="0.5" />
+            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="4" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
         </Style>
@@ -202,7 +202,7 @@
         <Style x:Key="AdvancedCard" TargetType="Border">
             <Setter Property="Background" Value="#080809" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-            <Setter Property="BorderThickness" Value="0.5" />
+            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="7" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
             <Style.Triggers>
@@ -231,7 +231,7 @@
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Background" Value="#0D0D0F" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-            <Setter Property="BorderThickness" Value="0.5" />
+            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="9,0" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
             <Setter Property="Template">
@@ -308,7 +308,7 @@
             <Setter Property="Height" Value="34" />
             <Setter Property="Background" Value="#0D0D0F" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-            <Setter Property="BorderThickness" Value="0.5" />
+            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="3" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
         </Style>
@@ -318,7 +318,7 @@
             <Setter Property="Background" Value="#0D0D0F" />
             <Setter Property="Foreground" Value="#D7D7DA" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-            <Setter Property="BorderThickness" Value="0.5" />
+            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Focusable" Value="False" />
