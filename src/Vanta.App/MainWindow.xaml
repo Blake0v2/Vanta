@@ -207,7 +207,7 @@
                                 <ColumnDefinition Width="5" />
                                 <ColumnDefinition Width="48" />
                                 <ColumnDefinition Width="5" />
-                                <ColumnDefinition Width="68" />
+                                <ColumnDefinition Width="76" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Grid>
@@ -222,10 +222,16 @@
                                 <TextBox x:Name="AdvancedIntervalSecondsBox" Style="{StaticResource AdvancedField}" Text="0" Padding="2,0,14,0" HorizontalContentAlignment="Center" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
                                 <TextBlock Text="s" Margin="0,0,8,0" Foreground="#8F939B" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
                             </Grid>
-                            <Grid Grid.Column="6">
-                                <TextBox x:Name="AdvancedIntervalMillisecondsBox" Style="{StaticResource AdvancedField}" Text="100" Padding="2,0,20,0" HorizontalContentAlignment="Center" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
-                                <TextBlock Text="ms" Margin="0,0,6,0" Foreground="#8F939B" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" IsHitTestVisible="False" />
-                            </Grid>
+                            <Border Grid.Column="6" Style="{StaticResource AdvancedSegmentShell}">
+                                <Grid Margin="3,0,7,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="AdvancedIntervalMillisecondsBox" Text="100" Background="Transparent" BorderThickness="0" Padding="0" FontSize="14" HorizontalContentAlignment="Center" PreviewTextInput="IntegerOnly_PreviewTextInput" TextChanged="AdvancedSetting_Changed" />
+                                    <TextBlock Grid.Column="1" Text="ms" Margin="4,0,0,0" Foreground="#8F939B" FontSize="10" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                </Grid>
+                            </Border>
                             <TextBlock x:Name="AdvancedRateSummaryText" Grid.Column="7" Text="10 clicks per second" Margin="7,0,0,0" Foreground="#8F939B" FontSize="10" VerticalAlignment="Center" />
                         </Grid>
                     </Grid>
