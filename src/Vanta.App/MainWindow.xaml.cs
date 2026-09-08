@@ -26,7 +26,7 @@ public partial class MainWindow : Window
     private const double SettingsWidth = 720;
     private const double SettingsHeight = 430;
     private const string GitHubUrl = "https://github.com/Blake0v2/Vanta";
-    private const string WebsiteUrl = "https://github.com/Blake0v2/Vanta#readme";
+    private const string WebsiteUrl = "https://vanta-auto-clicker.netlify.app";
     private readonly AppSettingsStore _settingsStore = new();
     private readonly GlobalHotKeyService _hotKeyService = new();
     private readonly AutoClickService _clickService = new();
