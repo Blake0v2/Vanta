@@ -9,7 +9,7 @@
     <ApplicationIcon>Assets\Vanta.ico</ApplicationIcon>
     <AssemblyName>Vanta</AssemblyName>
     <RootNamespace>Vanta</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>Vanta</Authors>
     <Product>Vanta Auto Clicker</Product>
     <Description>A precise, lightweight auto clicker for Windows.</Description>
