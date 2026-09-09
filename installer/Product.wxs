@@ -13,7 +13,7 @@
 
     <Icon Id="VantaIcon" SourceFile="src\Vanta.App\Assets\Vanta.ico" />
     <Property Id="ARPPRODUCTICON" Value="VantaIcon" />
-    <Property Id="ARPURLINFOABOUT" Value="https://vanta-auto-clicker.netlify.app" />
+    <Property Id="ARPURLINFOABOUT" Value="https://vanta-autoclicker.netlify.app" />
     <Property Id="ARPNOREPAIR" Value="yes" />
     <Property Id="MSIDISABLERMRESTART" Value="1" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
