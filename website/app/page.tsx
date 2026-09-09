@@ -33,7 +33,7 @@ type GitHubRelease = {
 const fallbackRelease: GitHubRelease = {
   tag_name: 'v0.1.6',
   html_url: `${RELEASES_URL}/tag/v0.1.6`,
-  published_at: '2026-09-08T00:00:00Z',
+  published_at: '2026-09-09T03:15:07Z',
   assets: [
     {
       name: 'Vanta-0.1.6-x64.msi',
