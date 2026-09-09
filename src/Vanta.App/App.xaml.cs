@@ -1,5 +1,5 @@
-using System.Diagnostics;
 using System.Windows;
+using Vanta.Interop;
 
 namespace Vanta;
 
@@ -11,22 +11,12 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        if (!IsCaptureRun() && IsAnotherVantaProcessRunning())
-        {
-            MessageBox.Show(
-                "Vanta Auto Clicker is already running. Close the open copy before starting another one.",
-                "Vanta Auto Clicker",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-            Shutdown();
-            return;
-        }
-
         if (!IsCaptureRun())
         {
             _singleInstanceMutex = new Mutex(true, SingleInstanceMutexName, out _ownsSingleInstanceMutex);
             if (!_ownsSingleInstanceMutex)
             {
+                ActivateRunningInstance();
                 _singleInstanceMutex.Dispose();
                 _singleInstanceMutex = null;
                 Shutdown();
@@ -51,20 +41,19 @@ public partial class App : Application
     private static bool IsCaptureRun() => Environment.GetCommandLineArgs()
         .Any(argument => argument.StartsWith("--capture-ui=", StringComparison.OrdinalIgnoreCase));
 
-    private static bool IsAnotherVantaProcessRunning()
+    private static void ActivateRunningInstance()
     {
-        using var currentProcess = Process.GetCurrentProcess();
-        var processes = Process.GetProcessesByName(currentProcess.ProcessName);
-        try
+        for (var attempt = 0; attempt < 20; attempt++)
         {
-            return processes.Any(process => process.Id != Environment.ProcessId);
-        }
-        finally
-        {
-            foreach (var process in processes)
+            var windowHandle = NativeMethods.FindWindow(null, "Vanta Auto Clicker");
+            if (windowHandle != IntPtr.Zero)
             {
-                process.Dispose();
+                NativeMethods.ShowWindowAsync(windowHandle, NativeMethods.SwRestore);
+                NativeMethods.SetForegroundWindow(windowHandle);
+                return;
             }
+
+            Thread.Sleep(100);
         }
     }
 }

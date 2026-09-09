@@ -184,7 +184,12 @@ internal sealed class UpdateService
 
     public static void OpenInstaller(string installerPath)
     {
-        Process.Start(new ProcessStartInfo("msiexec.exe", $"/i \"{installerPath}\"") { UseShellExecute = true });
+        Process.Start(new ProcessStartInfo(
+            "msiexec.exe",
+            $"/i \"{installerPath}\" MSIDISABLERMRESTART=1 /norestart")
+        {
+            UseShellExecute = true
+        });
     }
 }
 

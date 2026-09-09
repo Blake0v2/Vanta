@@ -5,6 +5,7 @@ namespace Vanta.Interop;
 internal static class NativeMethods
 {
     internal const int WmHotKey = 0x0312;
+    internal const int SwRestore = 9;
     internal const uint ModAlt = 0x0001;
     internal const uint ModControl = 0x0002;
     internal const uint ModShift = 0x0004;
@@ -31,6 +32,17 @@ internal static class NativeMethods
 
     [DllImport("user32.dll")]
     internal static extern short GetAsyncKeyState(int vKey);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    internal static extern IntPtr FindWindow(string? lpClassName, string lpWindowName);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool SetForegroundWindow(IntPtr hWnd);
 
     [DllImport("user32.dll")]
     internal static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
