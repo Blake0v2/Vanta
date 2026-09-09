@@ -4,7 +4,7 @@
            Manufacturer="Vanta"
            Version="$(var.Version)"
            UpgradeCode="7F2DE11A-1961-4919-9385-1DFB3A4FD04B"
-           Scope="perMachine"
+           Scope="perUserOrMachine"
            InstallerVersion="500"
            Language="1033">
     <SummaryInformation Description="Vanta Auto Clicker for Windows" Manufacturer="Vanta" />
@@ -81,7 +81,7 @@
                     WorkingDirectory="INSTALLFOLDER"
                     Icon="VantaIcon" />
           <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
-          <RegistryValue Root="HKLM" Key="Software\Vanta" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+          <RegistryValue Root="HKMU" Key="Software\Vanta" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
         </Component>
       </Directory>
     </StandardDirectory>
