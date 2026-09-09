@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 
 const GITHUB_URL = 'https://github.com/Blake0v2/Vanta';
 const RELEASES_URL = `${GITHUB_URL}/releases`;
-const FALLBACK_DOWNLOAD = `${GITHUB_URL}/releases/download/v0.1.6/Vanta-0.1.6-x64.msi`;
+const FALLBACK_DOWNLOAD = `${GITHUB_URL}/releases/download/v0.1.8/Vanta-0.1.8-x64.msi`;
 
 type ReleaseAsset = {
   name: string;
@@ -28,12 +28,12 @@ type GitHubRelease = {
 };
 
 const fallbackRelease: GitHubRelease = {
-  tag_name: 'v0.1.6',
-  html_url: `${RELEASES_URL}/tag/v0.1.6`,
-  published_at: '2026-09-09T03:15:07Z',
+  tag_name: 'v0.1.8',
+  html_url: `${RELEASES_URL}/tag/v0.1.8`,
+  published_at: '2026-09-09T21:30:00Z',
   assets: [
     {
-      name: 'Vanta-0.1.6-x64.msi',
+      name: 'Vanta-0.1.8-x64.msi',
       browser_download_url: FALLBACK_DOWNLOAD,
       download_count: 0,
     },
