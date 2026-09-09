@@ -4,11 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowDownToLine,
   CalendarDays,
-  Code2,
   ExternalLink,
   GitBranch,
-  ShieldCheck,
-  Sparkles,
 } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -104,7 +101,6 @@ export default function Home() {
 
       <section className="hero section-shell" id="home">
         <div className="hero-copy reveal">
-          <div className="eyebrow"><Sparkles /> Precise. Lightweight. Free.</div>
           <h1>Vanta Auto Clicker</h1>
           <p className="hero-description">
             A focused Windows auto clicker with a clean simple mode and precise controls when
@@ -124,7 +120,6 @@ export default function Home() {
             </a>
           </div>
           <div className="hero-meta">
-            <span><ShieldCheck /> No admin required for new installs</span>
             <span>Latest {latestRelease.tag_name}</span>
             {totalDownloads > 0 && <span>{totalDownloads.toLocaleString()} downloads</span>}
           </div>
@@ -190,24 +185,6 @@ export default function Home() {
           </div>
         </section>
       </div>
-
-      <section className="open-source-section section-shell">
-        <div className="source-icon"><Code2 /></div>
-        <span className="section-number">SOURCE AVAILABLE</span>
-        <h2>Built in the open.</h2>
-        <p>
-          The full Windows app and installer configuration are available to review on GitHub,
-          from the click engine to every release build.
-        </p>
-        <div className="source-actions">
-          <a className={cn(buttonVariants({ size: 'lg' }), 'primary-action')} href={GITHUB_URL} target="_blank" rel="noreferrer">
-            <GitBranch /> View on GitHub
-          </a>
-          <a className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'secondary-action')} href={RELEASES_URL} target="_blank" rel="noreferrer">
-            Browse Releases
-          </a>
-        </div>
-      </section>
 
       <section className="releases-section section-shell" id="releases">
         <div className="section-heading">
