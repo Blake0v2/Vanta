@@ -539,7 +539,7 @@
                             </Grid.RowDefinitions>
                             <TextBlock Text="App" Style="{StaticResource AdvancedTitle}" />
                             <Border Grid.Row="1" Background="#29292D" />
-                            <TextBlock x:Name="SettingsUpdateStatusText" Grid.Row="2" Text="Ready to check for updates." Foreground="#94969D" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            <TextBlock x:Name="SettingsUpdateStatusText" Grid.Row="2" Text="Ready when you are—check for the latest version." Foreground="#94969D" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" />
                             <Button x:Name="SettingsUpdateButton" Grid.Row="3" Style="{StaticResource SettingsPrimaryAction}" Content="Check for Updates" Click="CheckForUpdates_Click" />
                             <Button Grid.Row="5" Style="{StaticResource SettingsAction}" Content="Uninstall Vanta Auto Clicker" Foreground="#FF8585" Click="UninstallVanta_Click" />
                             <Grid Grid.Row="7">
