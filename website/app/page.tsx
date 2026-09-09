@@ -242,7 +242,7 @@ export default function Home() {
           </div>
         </div>
         <div className="footer-bottom section-shell">
-          <span>© 2026 Vanta</span><span>Source available on GitHub</span>
+          <span>© 2026 Vanta Auto Clicker</span><span>Source available on GitHub</span>
         </div>
       </footer>
     </main>
