@@ -49,25 +49,27 @@
                Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
     </UI>
 
-    <StandardDirectory Id="ProgramFiles6432Folder">
-      <Directory Id="INSTALLFOLDER" Name="Vanta Auto Clicker">
-        <Component Id="MainExecutableComponent" Guid="F284FB4D-F165-4375-A336-ED71795A297C">
-          <File Id="VantaExecutable"
-                Source="$(var.PublishDir)\Vanta Auto Clicker.exe"
-                KeyPath="yes"
-                Checksum="yes" />
-          <Shortcut Id="DesktopShortcut"
-                    Directory="DesktopFolder"
-                    Name="Vanta Auto Clicker"
-                    Description="Vanta Auto Clicker"
-                    Target="[INSTALLFOLDER]Vanta Auto Clicker.exe"
-                    WorkingDirectory="INSTALLFOLDER"
-                    Icon="VantaIcon" />
-        </Component>
-        <Files Include="$(var.PublishDir)\**">
-          <Exclude Files="$(var.PublishDir)\Vanta Auto Clicker.exe" />
-          <Exclude Files="$(var.PublishDir)\*.pdb" />
-        </Files>
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="LocalProgramsFolder" Name="Programs">
+        <Directory Id="INSTALLFOLDER" Name="Vanta Auto Clicker">
+          <Component Id="MainExecutableComponent" Guid="7667A315-2495-4DE9-BDBB-AE3FB8A691AC">
+            <File Id="VantaExecutable"
+                  Source="$(var.PublishDir)\Vanta Auto Clicker.exe"
+                  KeyPath="yes"
+                  Checksum="yes" />
+            <Shortcut Id="DesktopShortcut"
+                      Directory="DesktopFolder"
+                      Name="Vanta Auto Clicker"
+                      Description="Vanta Auto Clicker"
+                      Target="[INSTALLFOLDER]Vanta Auto Clicker.exe"
+                      WorkingDirectory="INSTALLFOLDER"
+                      Icon="VantaIcon" />
+          </Component>
+          <Files Include="$(var.PublishDir)\**">
+            <Exclude Files="$(var.PublishDir)\Vanta Auto Clicker.exe" />
+            <Exclude Files="$(var.PublishDir)\*.pdb" />
+          </Files>
+        </Directory>
       </Directory>
     </StandardDirectory>
 

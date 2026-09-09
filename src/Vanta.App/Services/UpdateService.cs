@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 namespace Vanta.Services;
@@ -182,15 +183,60 @@ internal sealed class UpdateService
         Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
     }
 
-    public static void OpenInstaller(string installerPath)
+    public static void ApplyInstallerAndRestart(string installerPath)
     {
-        Process.Start(new ProcessStartInfo(
-            "msiexec.exe",
-            $"/i \"{installerPath}\" MSIDISABLERMRESTART=1 /norestart")
+        var currentExecutable = Environment.ProcessPath;
+        if (string.IsNullOrWhiteSpace(currentExecutable))
         {
-            UseShellExecute = true
-        });
+            throw new InvalidOperationException("Vanta Auto Clicker could not locate its executable.");
+        }
+
+        var installedExecutable = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Programs",
+            "Vanta Auto Clicker",
+            "Vanta Auto Clicker.exe");
+        var logPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Vanta",
+            "Updates",
+            "install.log");
+
+        var script = $$"""
+            $ErrorActionPreference = 'SilentlyContinue'
+            $vanta = Get-Process -Id {{Environment.ProcessId}} -ErrorAction SilentlyContinue
+            if ($null -ne $vanta) { $vanta.WaitForExit() }
+            & "$env:SystemRoot\System32\msiexec.exe" /i '{{PowerShellLiteral(installerPath)}}' /qn /norestart MSIDISABLERMRESTART=1 /L*v '{{PowerShellLiteral(logPath)}}'
+            $result = $LASTEXITCODE
+            if (($result -eq 0 -or $result -eq 3010) -and (Test-Path -LiteralPath '{{PowerShellLiteral(installedExecutable)}}')) {
+                Start-Process -FilePath '{{PowerShellLiteral(installedExecutable)}}' -ArgumentList "--update-result=$result"
+            } elseif (Test-Path -LiteralPath '{{PowerShellLiteral(currentExecutable)}}') {
+                Start-Process -FilePath '{{PowerShellLiteral(currentExecutable)}}' -ArgumentList "--update-result=$result"
+            }
+            """;
+
+        var encodedScript = Convert.ToBase64String(Encoding.Unicode.GetBytes(script));
+        var startInfo = new ProcessStartInfo("powershell.exe")
+        {
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            WindowStyle = ProcessWindowStyle.Hidden
+        };
+        startInfo.ArgumentList.Add("-NoLogo");
+        startInfo.ArgumentList.Add("-NoProfile");
+        startInfo.ArgumentList.Add("-NonInteractive");
+        startInfo.ArgumentList.Add("-WindowStyle");
+        startInfo.ArgumentList.Add("Hidden");
+        startInfo.ArgumentList.Add("-EncodedCommand");
+        startInfo.ArgumentList.Add(encodedScript);
+
+        if (Process.Start(startInfo) is null)
+        {
+            throw new InvalidOperationException("Vanta Auto Clicker could not start the update helper.");
+        }
     }
+
+    private static string PowerShellLiteral(string value) => value.Replace("'", "''", StringComparison.Ordinal);
 }
 
 internal sealed record UpdateResult(

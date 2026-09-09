@@ -80,6 +80,26 @@ public partial class MainWindow : Window
         LoadSettings();
         ApplyCaptureState();
 
+        var updateResultArgument = Environment.GetCommandLineArgs()
+            .FirstOrDefault(argument => argument.StartsWith("--update-result=", StringComparison.OrdinalIgnoreCase))?
+            .Substring("--update-result=".Length);
+        if (int.TryParse(updateResultArgument, CultureInfo.InvariantCulture, out var updateResultCode))
+        {
+            if (updateResultCode is 0 or 3010)
+            {
+                SettingsUpdateStatusText.Text = $"Updated successfully to Vanta Auto Clicker {FormatVersion(UpdateService.CurrentVersion)}.";
+            }
+            else
+            {
+                Loaded += (_, _) => MessageBox.Show(
+                    this,
+                    $"The update could not be installed (error {updateResultCode}). Vanta Auto Clicker has reopened without changing your settings.",
+                    "Vanta Auto Clicker Update",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+        }
+
         var captureView = Environment.GetCommandLineArgs()
             .FirstOrDefault(argument => argument.StartsWith("--capture-view=", StringComparison.OrdinalIgnoreCase))?
             .Substring("--capture-view=".Length);
@@ -443,16 +463,17 @@ public partial class MainWindow : Window
             UpdateToastActionButton.Content = $"Downloading {percentage}%";
         });
 
+        var installAfterDownload = false;
         try
         {
             _downloadedInstallerPath = await _updateService.DownloadInstallerAsync(update, progress);
-            SettingsUpdateStatusText.Text = $"Vanta Auto Clicker {update.LatestVersion} downloaded and verified.";
-            SettingsUpdateButton.Content = "Install Update";
-            UpdateToastVersionText.Text = "Download complete";
-            UpdateToastMessageText.Text = $"Vanta Auto Clicker {update.LatestVersion} is verified and ready to install.";
-            UpdateToastActionButton.Content = "Install Update";
-            UpdateToastActionButton.IsEnabled = true;
+            SettingsUpdateStatusText.Text = $"Vanta Auto Clicker {update.LatestVersion} is verified and ready to install.";
+            SettingsUpdateButton.Content = "Installing...";
+            UpdateToastVersionText.Text = "Restarting to update";
+            UpdateToastMessageText.Text = $"Vanta Auto Clicker {update.LatestVersion} is installing in the background.";
+            UpdateToastActionButton.Content = "Installing...";
             ShowUpdateToast(update, force: true, preserveText: true);
+            installAfterDownload = true;
         }
         catch (Exception exception)
         {
@@ -471,6 +492,11 @@ public partial class MainWindow : Window
             SettingsUpdateButton.IsEnabled = true;
             UpdateToastActionButton.IsEnabled = true;
         }
+
+        if (installAfterDownload)
+        {
+            InstallDownloadedUpdate();
+        }
     }
 
     private void InstallDownloadedUpdate()
@@ -483,19 +509,22 @@ public partial class MainWindow : Window
             return;
         }
 
-        var confirmation = MessageBox.Show(
-            this,
-            "Vanta Auto Clicker will close and open the verified update installer. Continue?",
-            "Install Vanta Auto Clicker Update",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Information);
-        if (confirmation != MessageBoxResult.Yes)
+        try
         {
-            return;
+            SettingsUpdateButton.IsEnabled = false;
+            UpdateToastActionButton.IsEnabled = false;
+            SettingsUpdateButton.Content = "Installing...";
+            SettingsUpdateStatusText.Text = "Installing the update. Vanta Auto Clicker will restart automatically.";
+            UpdateService.ApplyInstallerAndRestart(_downloadedInstallerPath);
+            Application.Current.Shutdown();
         }
-
-        UpdateService.OpenInstaller(_downloadedInstallerPath);
-        Application.Current.Shutdown();
+        catch (Exception exception)
+        {
+            SettingsUpdateButton.IsEnabled = true;
+            UpdateToastActionButton.IsEnabled = true;
+            SettingsUpdateButton.Content = "Try Again";
+            SettingsUpdateStatusText.Text = $"The update could not start: {exception.Message}";
+        }
     }
 
     private void ShowUpdateToast(UpdateResult update, bool force = false, bool preserveText = false)
